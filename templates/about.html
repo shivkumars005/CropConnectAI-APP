@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="About CropConnectAI - Empowering Farmers with AI">
+    <meta name="keywords" content="CropConnectAI, About, AI Farming, Agriculture Technology">
+    <meta name="author" content="CropConnectAI Team">
+    <link rel="icon" type="image/png" href="/static/images/Croplogo.png">
+    <title id="pageTitle">About | CropConnectAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            color: #333;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/images/farming.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) opacity(0.8);
+            z-index: -1;
+        }
+
+        .navbar {
+            background-color: #388e3c;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .navbar-title {
+            margin: 0;
+            font-size: 28px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #ffeb3b;
+        }
+
+        .language-toggle {
+            text-align: center;
+            margin: 20vh auto;
+            width: fit-content;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease;
+        }
+
+        .language-toggle button {
+            background-color: #388e3c;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .language-toggle button:hover {
+            background-color: #2e7d32;
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #2e7d32;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 30px;
+        }
+
+        p {
+            margin: 10px 0;
+        }
+
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .english-content, .telugu-content {
+            display: none;
+        }
+
+        .english-content.active, .telugu-content.active {
+            display: block;
+        }
+
+        footer {
+            background-color: #2e7d32;
+            color: #f5f5f5;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+            width: 100%;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .contact-links a {
+            color: #b2fab4;
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            transition: color 0.3s ease;
+        }
+
+        .contact-links a:hover {
+            color: #ffffff;
+        }
+
+        .contact-links i {
+            margin-right: 0.3rem;
+        }
+
+        .move-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #388e3c;
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: none;
+            z-index: 1001;
+            transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .move-to-top:hover {
+            background-color: #2e7d32;
+            transform: scale(1.1);
+        }
+
+        .move-to-top.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .navbar-title {
+                font-size: 22px;
+            }
+
+            .navbar a {
+                font-size: 14px;
+            }
+
+            .language-toggle {
+                margin: 15vh auto;
+                padding: 15px;
+            }
+
+            .language-toggle button {
+                padding: 8px 15px;
+                margin: 5px;
+                font-size: 14px;
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            p, ul {
+                font-size: 0.9rem;
+            }
+
+            footer {
+                padding: 1rem;
+            }
+
+            .move-to-top {
+                bottom: 15px;
+                right: 15px;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Selection -->
+    <div class="language-toggle" id="languageToggle">
+        <button onclick="showLanguage('english')">English</button>
+        <button onclick="showLanguage('telugu')">తెలుగు</button>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-title" id="navbarTitle">CropConnectAI - About</div>
+        <a href="{{ url_for('home') }}"><i class="fas fa-home"></i></a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <h1 id="containerTitle">About</h1>
+
+            <!-- English Content -->
+            <div class="english-content" id="englishContent">
+                <p><strong>Established:</strong> 2025</p>
+
+                <h2>1. Our Mission</h2>
+                <p>CropConnectAI is dedicated to empowering farmers by leveraging artificial intelligence to enhance agricultural productivity and sustainability. Our mission is to provide accessible, innovative tools that support farmers in making informed decisions.</p>
+
+                <h2>2. What We Do</h2>
+                <p>We offer a suite of AI-driven solutions tailored for agriculture, including:</p>
+                <ul>
+                    <li>Crop price forecasting and market insights.</li>
+                    <li>Crop rotation planning for soil health.</li>
+                    <li>Fertilizer recommendations based on soil analysis.</li>
+                    <li>Weather predictions for better farm management.</li>
+                    <li>A community platform for farmers to connect and share knowledge.</li>
+                </ul>
+
+                <h2>3. Our Team</h2>
+                <p>Based in Hyderabad, Telangana, our passionate team combines expertise in AI, agriculture, and technology to build solutions that address real-world farming challenges.</p>
+
+                <h2>4. Why CropConnectAI?</h2>
+                <p>We believe technology can transform agriculture. By providing tools in local languages like Telugu and English, we ensure accessibility for farmers across diverse regions.</p>
+
+                <h2>5. Contact Us</h2>
+                <p>Reach out to us at: <a href="mailto:shivakumar.working@gmail.com">support@cropconnectai</a></p>
+            </div>
+
+            <!-- Telugu Content -->
+            <div class="telugu-content" id="teluguContent">
+                <p><strong>స్థాపించబడినది:</strong> 2025</p>
+
+                <h2>1. మా లక్ష్యం</h2>
+                <p>క్రాప్‌కనెక్ట్AI రైతులకు సాధికారత కల్పించడానికి కృత్రిమ మేధస్సును ఉపయోగించి వ్యవసాయ ఉత్పాదకత మరియు స్థిరత్వాన్ని పెంచడానికి అంకితం చేయబడింది. రైతులు సమాచారంతో నిర్ణయాలు తీసుకోవడానికి సహాయపడే అందుబాటులో ఉన్న, వినూత్న సాధనాలను అందించడం మా లక్ష్యం.</p>
+
+                <h2>2. మేము ఏమి చేస్తాము</h2>
+                <p>మేము వ్యవసాయం కోసం తయారు చేయబడిన AI-ఆధారిత పరిష్కారాల సమూహాన్ని అందిస్తాము, ఇందులో ఇవి ఉన్నాయి:</p>
+                <ul>
+                    <li>పంటల ధరల అంచనా మరియు మార్కెట్ సమాచారం.</li>
+                    <li>మట్టి ఆరోగ్యం కోసం పంటల మార్పిడి ప్రణాళిక.</li>
+                    <li>మట్టి విశ్లేషణ ఆధారంగా ఎరువుల సిఫార్సులు.</li>
+                    <li>మెరుగైన వ్యవసాయ నిర్వహణ కోసం వాతావరణ అంచనాలు.</li>
+                    <li>రైతులు కనెక్ట్ అవ్వడానికి మరియు జ్ఞానాన్ని పంచుకోవడానికి సముదాయ వేదిక.</li>
+                </ul>
+
+                <h2>3. మా బృందం</h2>
+                <p>హైదరాబాద్, తెలంగాణలో ఉన్న మా ఉత్సాహవంతమైన బృందం AI, వ్యవసాయం మరియు సాంకేతికతలో నైపుణ్యాన్ని కలిపి వాస్తవ ప్రపంచ వ్యవసాయ సవాళ్లను పరిష్కరించే పరిష్కారాలను నిర్మిస్తుంది.</p>
+
+                <h2>4. క్రాప్‌కనెక్ట్AI ఎందుకు?</h2>
+                <p>సాంకేతికత వ్యవసాయాన్ని మార్చగలదని మేము విశ్వసిస్తాము. తెలుగు మరియు ఇంగ్లీష్ వంటి స్థానిక భాషలలో సాధనాలను అందించడం ద్వారా, వివిధ ప్రాంతాల్లోని రైతులకు అందుబాటును నిర్ధారిస్తాము.</p>
+
+                <h2>5. మమ్మల్ని సంప్రదించండి</h2>
+                <p>మమ్మల్ని ఇక్కడ సంప్రదించండి: <a href="mailto:shivakumar.working@gmail.com">support@cropconnectai</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Move to Top Button -->
+    <button class="move-to-top" id="moveToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <p id="teamDesc"></p>
+        <div class="contact-links">
+            <a href="mailto:shivakumar.working@gmail.com"><i class="fas fa-envelope"></i><span id="footerEmail"></span></a>
+            <a href="https://github.com/shivkumars005" target="_blank"><i class="fab fa-github"></i><span id="footerGithub"></span></a>
+            <a href="https://linkedin.com/in/shivakumarsouta" target="_blank"><i class="fab fa-linkedin"></i><span id="footerLinkedin"></span></a>
+            <a href="#"><i class="fas fa-map-marker-alt"></i><span id="footerLocation"></span></a>
+        </div>
+    </footer>
+
+    <script>
+        const uiTranslations = {
+            'english': {
+                pageTitle: 'About | CropConnectAI',
+                navbarTitle: 'CropConnectAI - About',
+                containerTitle: 'About',
+                moveToTop: 'Back to Top',
+                teamDesc: 'CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions.',
+                footerEmail: 'Email',
+                footerGithub: 'GitHub',
+                footerLinkedin: 'LinkedIn',
+                footerLocation: 'Hyderabad, Telangana'
+            },
+            'telugu': {
+                pageTitle: 'గురించి | క్రాప్‌కనెక్ట్AI',
+                navbarTitle: 'క్రాప్‌కనెక్ట్AI - గురించి',
+                containerTitle: 'గురించి',
+                moveToTop: 'పైకి వెళ్ళు',
+                teamDesc: 'క్రాప్‌కనెక్ట్‌ఏఐ హైదరాబాద్, తెలంగాణ నుండి ఒక ఉత్సాహవంతమైన బృందం చేత నిర్మించబడింది, ఇది రైతులకు ఏఐ-ఆధారిత పరిష్కారాలతో సాధికారత కల్పించడానికి అంకితం చేయబడింది.',
+                footerEmail: 'ఇమెయిల్',
+                footerGithub: 'గిట్‌హబ్',
+                footerLinkedin: 'లింక్డ్‌ఇన్',
+                footerLocation: 'హైదరాబాద్, తెలంగాణ'
+            }
+        };
+
+        function showLanguage(lang) {
+            // Update UI translations
+            const t = uiTranslations[lang];
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+            document.getElementById('navbarTitle').textContent = t.navbarTitle;
+            document.getElementById('containerTitle').textContent = t.containerTitle;
+            document.getElementById('moveToTop').innerHTML = `<i class="fas fa-arrow-up"></i> ${t.moveToTop}`;
+            document.getElementById('teamDesc').textContent = t.teamDesc;
+            document.getElementById('footerEmail').textContent = t.footerEmail;
+            document.getElementById('footerGithub').textContent = t.footerGithub;
+            document.getElementById('footerLinkedin').textContent = t.footerLinkedin;
+            document.getElementById('footerLocation').textContent = t.footerLocation;
+
+            // Hide language toggle
+            document.getElementById('languageToggle').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('languageToggle').style.display = 'none';
+                document.getElementById('navbar').style.display = 'flex';
+                document.getElementById('mainContent').classList.add('active');
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('navbar').style.opacity = '1';
+                document.getElementById('mainContent').style.opacity = '1';
+                document.getElementById('footer').style.opacity = '1';
+            }, 300);
+
+            // Show appropriate language content
+            if (lang === 'english') {
+                document.getElementById('englishContent').classList.add('active');
+                document.getElementById('teluguContent').classList.remove('active');
+            } else if (lang === 'telugu') {
+                document.getElementById('teluguContent').classList.add('active');
+                document.getElementById('englishContent').classList.remove('active');
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        window.onscroll = function() {
+            const moveToTopBtn = document.getElementById('moveToTop');
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                moveToTopBtn.classList.add('visible');
+            } else {
+                moveToTopBtn.classList.remove('visible');
+            }
+        };
+
+        window.onload = function() {
+            document.getElementById('languageToggle').style.display = 'block';
+            document.getElementById('navbar').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('active');
+            document.getElementById('footer').style.display = 'none';
+            document.getElementById('moveToTop').style.display = 'none';
+            document.getElementById('languageToggle').style.opacity = '1';
+            document.getElementById('navbar').style.opacity = '0';
+            document.getElementById('mainContent').style.opacity = '0';
+            document.getElementById('footer').style.opacity = '0';
+        };
+    </script>
+</body>
+</html>

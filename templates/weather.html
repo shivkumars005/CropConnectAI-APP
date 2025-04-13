@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Weather Forecast - CropConnectAI">
+    <meta name="keywords" content="Weather, Agriculture, Farming, Crop Management">
+    <meta name="author" content="CropConnectAI Team">
+    <link rel="icon" type="image/png" href="/static/images/Croplogo.png">
+    <title>Weather - CropConnectAI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            color: #2e7d32;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/images/farming.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(1px) opacity(0.8);
+            z-index: -1;
+        }
+        .navbar {
+            background-color: #388e3c;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: none; /* Hidden initially */
+            transition: opacity 0.5s ease-in-out;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #ffffff;
+        }
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: #ffeb3b;
+        }
+        main {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            display: none; /* Hidden initially */
+            transition: opacity 0.5s ease-in-out;
+        }
+        .container {
+            width: 700px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .language-selection {
+            text-align: center;
+            margin: 20px auto;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+        .language-selection button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 20px;
+            background-color: #66bb6a;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+        }
+        .language-selection button:hover {
+            background-color: #4caf50;
+            transform: scale(1.05);
+        }
+        .inputs {
+            padding: 2rem;
+            text-align: center;
+            display: none; /* Hidden until language is selected */
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            background: #e0f2e9;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .inputs.active {
+            display: flex;
+        }
+        .inputs:hover {
+            transform: scale(1.02);
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        .inputs input[type='text'] {
+            height: 3.5rem;
+            width: 22rem;
+            background: #f1f8e9;
+            font-size: 1.1rem;
+            padding: 10px 15px;
+            border: 2px solid #66bb6a;
+            border-radius: 25px;
+            outline: none;
+            color: #2e7d32;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .inputs input[type='text']:focus {
+            border-color: #388e3c;
+            box-shadow: 0 0 10px rgba(56, 142, 60, 0.5);
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .inputs input[type="submit"],
+        .inputs button {
+            height: 3.5rem;
+            width: 3.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #66bb6a;
+        }
+        .inputs input[type="submit"] {
+            width: 10rem;
+        }
+        .inputs input[type="submit"]:hover,
+        .inputs button:hover {
+            background-color: #4caf50;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        .output {
+            text-align: center;
+            width: 100%;
+            color: #388e3c;
+            margin-top: 20px;
+            position: relative;
+            display: none;
+        }
+        .outputScreen {
+            background: #e0f2e9;
+            min-height: 65vh;
+            margin: 30px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .outputScreen h2 {
+            padding: 15px 0;
+            text-align: center;
+            background: #388e3c;
+            color: #ffffff;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+        .outputScreen p {
+            margin: 15px 40px;
+            text-align: left;
+            color: #2e7d32;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: color 0.3s ease;
+        }
+        .outputScreen p:hover {
+            color: #4caf50;
+        }
+        .outputScreen h2 span {
+            font-size: 2rem;
+            color: #ffeb3b;
+        }
+        .outputScreen p span {
+            font-size: 1.4rem;
+            color: #388e3c;
+            font-weight: bold;
+        }
+        #analysisOutput {
+            font-style: italic;
+            color: #d81b60;
+            border-top: 1px solid #388e3c;
+            padding-top: 10px;
+        }
+        .icon {
+            width: 30px;
+            height: 30px;
+        }
+        #speakOutput {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            background-color: #ff9800;
+            border: 2px solid #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, background-color 0.3s;
+            cursor: pointer;
+        }
+        #speakOutput:hover {
+            background-color: #f57c00;
+            transform: scale(1.1);
+        }
+        #backToTop {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ff9800;
+            color: #ffffff;
+            padding: 10px 15px;
+            border-radius: 50%;
+            display: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        #backToTop:hover {
+            background-color: #f57c00;
+        }
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            z-index: 2000;
+            opacity: 0;
+            animation: fadeInOut 3s forwards;
+        }
+        .success {
+            background-color: #4caf50;
+        }
+        .error {
+            background-color: #d32f2f;
+        }
+        .info {
+            background-color: #0288d1;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translateX(-50%); }
+            90% { opacity: 1; transform: translateX(-50%); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+        footer {
+            background-color: #2e7d32;
+            color: #f5f5f5; /* Brighter text for visibility */
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+            display: none; /* Hidden initially */
+            transition: opacity 0.5s ease-in-out;
+        }
+        footer p {
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+        .contact-links a {
+            color: #b2fab4; /* Brighter link color */
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            transition: color 0.3s ease;
+        }
+        .contact-links a:hover {
+            color: #ffffff;
+        }
+        .contact-links i {
+            margin-right: 0.3rem;
+        }
+        @media (max-width: 600px) {
+            footer {
+                padding: 1rem;
+            }
+            .container {
+                width: 100%;
+                padding: 20px;
+            }
+            .inputs input[type='text'] {
+                width: 100%;
+            }
+            .navbar h1 {
+                font-size: 22px;
+            }
+            .navbar a {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <h1 id="navbar-title">CropConnectAI</h1>
+        <a href="{{ url_for('home') }}"><i class="fas fa-home"></i></a>
+    </nav>
+
+    <!-- Language Selection -->
+    <div class="language-selection" id="languageSelection">
+        <button id="englishBtn" onclick="setLanguage('en-US')">English</button>
+        <button id="teluguBtn" onclick="setLanguage('te-IN')">తెలుగు</button>
+    </div>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <div class="container">
+            <section class="inputs" id="inputsSection">
+                <div class="input-group">
+                    <input type="text" id="cityInput" placeholder="">
+                    <button id="voiceButton"><img src="https://img.icons8.com/ios-filled/30/ffffff/microphone.png" class="icon" alt="Mic"></button>
+                    <button id="locationButton"><img src="https://img.icons8.com/ios-filled/30/ffffff/marker.png" class="icon" alt="Location"></button>
+                </div>
+                <div class="button-group">
+                    <input type="submit" value="" id="submitButton">
+                </div>
+            </section>
+            <section class="output" id="outputSection">
+                <div class="outputScreen">
+                    <h2 id="cityOutput"></h2>
+                    <p id="descriptionOutput"><img src="https://img.icons8.com/ios-filled/30/2f4f2f/cloud.png" class="icon" alt="Sky"></p>
+                    <p id="temperatureOutput"><img src="https://img.icons8.com/ios-filled/30/2f4f2f/temperature.png" class="icon" alt="Temp"></p>
+                    <p id="humidityOutput"><img src="https://img.icons8.com/ios-filled/30/2f4f2f/humidity.png" class="icon" alt="Humidity"></p>
+                    <p id="precipitationOutput"><img src="https://img.icons8.com/ios-filled/30/2f4f2f/rain.png" class="icon" alt="Rain"></p>
+                    <p id="pressureOutput"><img src="https://img.icons8.com/ios-filled/30/2f4f2f/barometer.png" class="icon" alt="Pressure"></p>
+                    <p id="windOutput"><img src="https://img.icons8.com/ios-filled/30/2f4f2f/wind.png" class="icon" alt="Wind"></p>
+                    <p id="sunriseOutput"><img src="https://img.icons8.com/ios-filled/30/2f4f2f/sunrise.png" class="icon" alt="Sunrise"></p>
+                    <p id="sunsetOutput"><img src="https://img.icons8.com/ios-filled/30/2f4f2f/sunset.png" class="icon" alt="Sunset"></p>
+                    <p id="analysisOutput"><img src="https://img.icons8.com/ios-filled/30/d81b60/lightning-bolt.png" class="icon" alt="Analysis"></p>
+                    <button id="speakOutput">🔊</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <p id="team-desc">
+            CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions.
+        </p>
+        <div class="contact-links">
+            <a href="mailto:shivakumar.working@gmail.com"><i class="fas fa-envelope"></i>Email</a>
+            <a href="https://github.com/shivkumars005" target="_blank"><i class="fab fa-github"></i>GitHub</a>
+            <a href="https://linkedin.com/in/shivakumarsouta" target="_blank"><i class="fab fa-linkedin"></i>LinkedIn</a>
+            <a href="#"><i class="fas fa-map-marker-alt"></i>Hyderabad, Telangana</a>
+        </div>
+    </footer>
+
+    <!-- Back-to-Top Button -->
+    <button id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <script>
+        const cityInput = document.querySelector('#cityInput');
+        const submitButton = document.querySelector('#submitButton');
+        const locationButton = document.querySelector('#locationButton');
+        const voiceButton = document.querySelector('#voiceButton');
+        const cityOutput = document.querySelector('#cityOutput');
+        const descriptionOutput = document.querySelector('#descriptionOutput');
+        const temperatureOutput = document.querySelector('#temperatureOutput');
+        const humidityOutput = document.querySelector('#humidityOutput');
+        const precipitationOutput = document.querySelector('#precipitationOutput');
+        const pressureOutput = document.querySelector('#pressureOutput');
+        const windOutput = document.querySelector('#windOutput');
+        const sunriseOutput = document.querySelector('#sunriseOutput');
+        const sunsetOutput = document.querySelector('#sunsetOutput');
+        const analysisOutput = document.querySelector('#analysisOutput');
+        const englishBtn = document.querySelector('#englishBtn');
+        const teluguBtn = document.querySelector('#teluguBtn');
+        const speakOutput = document.querySelector('#speakOutput');
+        const outputSection = document.querySelector('#outputSection');
+        const inputsSection = document.querySelector('#inputsSection');
+        const languageSelection = document.querySelector('#languageSelection');
+        const navbar = document.querySelector('#navbar');
+        const mainContent = document.querySelector('#mainContent');
+        const footer = document.querySelector('#footer');
+        const apiKey = "2879960a777380ec1ab5dfd911a34fe6";
+        let currentWeatherData = null;
+        let currentLanguage = null;
+        let audioCache = {};
+
+        const uiTranslations = {
+            'en-US': {
+                navbar: 'CropConnectAI',
+                placeholder: 'Enter or speak city name...',
+                submit: 'Get Report',
+                city: 'Weather of',
+                sky: 'Sky',
+                temp: 'Temperature',
+                humidity: 'Humidity',
+                rain: 'Rain (1h)',
+                pressure: 'Pressure',
+                wind: 'Wind',
+                sunrise: 'Sunrise',
+                sunset: 'Sunset',
+                analysis: 'AI Analysis',
+                voiceError: 'Voice input failed. Please try again.',
+                emptyInput: 'Please enter or speak a city name.',
+                locationDenied: 'Location access denied. Please enable it in settings.',
+                locationUnavailable: 'Location unavailable. Try entering a city name.',
+                locationTimeout: 'Location request timed out. Please try again.',
+                locationError: 'Error fetching location. Please try manually.',
+                noData: 'No weather data available. Fetch weather first.',
+                translating: 'Translating your input...',
+                selectLanguage: 'Please select a language to continue.',
+                fetchingWeather: 'Fetching weather data...',
+                speakingWeather: 'Speaking weather report...',
+                ttsError: 'Error playing audio. Please try again.',
+                team: 'CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions.'
+            },
+            'te-IN': {
+                navbar: 'క్రాప్‌కనెక్ట్‌ఏఐ',
+                placeholder: 'నగరం పేరు ఎంటర్ చేయండి లేదా మాట్లాడండి...',
+                submit: 'నివేదిక పొందండి',
+                city: 'వాతావరణం',
+                sky: 'ఆకాశం',
+                temp: 'ఉష్ణోగ్రత',
+                humidity: 'తేమ',
+                rain: 'వర్షం (1 గంట)',
+                pressure: 'పీడనం',
+                wind: 'గాలి',
+                sunrise: 'సూర్యోదయం',
+                sunset: 'సూర్యాస్తమయం',
+                analysis: 'AI విశ్లేషణ',
+                voiceError: 'వాయిస్ ఇన్‌పుట్ విఫలమైంది. మళ్లీ ప్రయత్నించండి.',
+                emptyInput: 'నగరం పేరు ఎంటర్ చేయండి లేదా మాట్లాడండి.',
+                locationDenied: 'స్థాన అనుమతి నిరాకరించబడింది. సెట్టింగ్‌లలో అనుమతించండి.',
+                locationUnavailable: 'స్థానం అందుబాటులో లేదు. నగరం పేరు ఎంటర్ చేయండి.',
+                locationTimeout: 'స్థాన అభ్యర్థన సమయం ముగిసింది. మళ్లీ ప్రయత్నించండి.',
+                locationError: 'స్థానం పొందడంలో లోపం. మాన్యువల్‌గా ప్రయత్నించండి.',
+                noData: 'వాతావరణ డేటా లేదు. ముందు డేటా పొందండి.',
+                translating: 'మీ ఇన్‌పుట్‌ను అనువదిస్తోంది...',
+                selectLanguage: 'దయచేసి భాషను ఎంచుకోండి.',
+                fetchingWeather: 'వాతావరణ డేటా సేకరిస్తోంది...',
+                speakingWeather: 'వాతావరణ నివేదిక మాట్లాడుతోంది...',
+                ttsError: 'ఆడియో ప్లే చేయడంలో లోపం. మళ్లీ ప్రయత్నించండి.',
+                team: 'క్రాప్‌కనెక్ట్‌ఏఐ హైదరాబాద్, తెలంగాణ నుండి ఒక ఉత్సాహవంతమైన బృందం చేత నిర్మించబడింది, ఇది రైతులకు ఏఐ-ఆధారిత పరిష్కారాలతో సాధికారత కల్పించడానికి అంకితం చేయబడింది.'
+            }
+        };
+
+        function convertKelvinToCelsius(val) {
+            return (val - 273.15).toFixed(2);
+        }
+
+        function formatTime(unixTimestamp) {
+            const date = new Date(unixTimestamp * 1000);
+            return date.toLocaleTimeString(currentLanguage || 'en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function showMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            msg.textContent = text;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+
+        async function fetchWeatherByCity(city) {
+            const t = uiTranslations[currentLanguage];
+            showMessage(t.fetchingWeather, 'info');
+            try {
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}`);
+                const data = await response.json();
+                if (data.cod === 200) {
+                    currentWeatherData = data;
+                    outputSection.style.display = 'block';
+                    await displayWeather(data, currentLanguage);
+                    showMessage(`Weather fetched for ${data.name}`, 'success');
+                    const analysis = await analyzeWeather(data);
+                    analysisOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/d81b60/lightning-bolt.png" class="icon" alt="Analysis"> ${t.analysis}: <span>${analysis}</span>`;
+                    await speak(analysis, currentLanguage);
+                } else {
+                    showMessage('City not found. Please check the name.', 'error');
+                }
+            } catch (err) {
+                showMessage('Network error. Please check your connection.', 'error');
+            }
+        }
+
+        async function fetchWeatherByCoords(lat, lon) {
+            const t = uiTranslations[currentLanguage];
+            showMessage(t.fetchingWeather, 'info');
+            try {
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`);
+                const data = await response.json();
+                if (data.cod === 200) {
+                    cityInput.value = data.name;
+                    currentWeatherData = data;
+                    outputSection.style.display = 'block';
+                    await displayWeather(data, currentLanguage);
+                    showMessage(`Location fetched: ${data.name}`, 'success');
+                    const analysis = await analyzeWeather(data);
+                    analysisOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/d81b60/lightning-bolt.png" class="icon" alt="Analysis"> ${t.analysis}: <span>${analysis}</span>`;
+                    await speak(analysis, currentLanguage);
+                } else {
+                    showMessage('Weather unavailable for this location.', 'error');
+                }
+            } catch (err) {
+                showMessage('Network error. Please check your connection.', 'error');
+            }
+        }
+
+        async function translateToEnglish(text, sourceLang) {
+            const t = uiTranslations[currentLanguage];
+            showMessage(t.translating, 'info');
+            try {
+                const response = await fetch(
+                    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=en&dt=t&q=${encodeURIComponent(text)}`
+                );
+                const data = await response.json();
+                return data[0][0][0];
+            } catch (err) {
+                showMessage('Translation failed. Using original input.', 'error');
+                return text;
+            }
+        }
+
+        async function translateText(text, lang) {
+            if (lang === 'en-US') return text;
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${lang.split('-')[0]}`);
+                const data = await response.json();
+                return data.responseData.translatedText || text;
+            } catch (err) {
+                return text;
+            }
+        }
+
+        function numberToWords(num, lang) {
+            const numMap = {
+                'en-US': {
+                    0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine',
+                    10: 'ten', 11: 'eleven', 12: 'twelve', 13: 'thirteen', 14: 'fourteen', 15: 'fifteen', 16: 'sixteen', 17: 'seventeen', 18: 'eighteen', 19: 'nineteen',
+                    20: 'twenty', 30: 'thirty', 40: 'forty', 50: 'fifty', 60: 'sixty', 70: 'seventy', 80: 'eighty', 90: 'ninety'
+                },
+                'te-IN': {
+                    0: 'సున్నా', 1: 'ఒకటి', 2: 'రెండు', 3: 'మూడు', 4: 'నాలుగు', 5: 'ఐదు', 6: 'ఆరు', 7: 'ఏడు', 8: 'ఎనిమిది', 9: 'తొమ్మిది',
+                    10: 'పది', 11: 'పదకొండు', 12: 'పన్నెండు', 13: 'పదమూడు', 14: 'పద్నాలుగు', 15: 'పదిహేను', 16: 'పదహారు', 17: 'పదిహేడు', 18: 'పద్దెనిమిది', 19: 'పందొమ్మిది',
+                    20: 'ఇరవై', 30: 'ముప్పై', 40: 'నలభై', 50: 'ఐదవై', 60: 'అరవై', 70: 'డెబ్బై', 80: 'ఎనభై', 90: 'తొంభై'
+                }
+            };
+            if (num <= 20) return numMap[lang][num];
+            const tens = Math.floor(num / 10) * 10;
+            const ones = num % 10;
+            return ones === 0 ? numMap[lang][tens] : `${numMap[lang][tens]} ${numMap[lang][ones]}`;
+        }
+
+        async function displayWeather(data, lang) {
+            const t = uiTranslations[lang];
+            const description = await translateText(data.weather[0].description, lang);
+            const cityName = await translateText(data.name, lang);
+            const temp = convertKelvinToCelsius(data.main.temp);
+            const humidity = data.main.humidity;
+            const rain = data.rain ? (data.rain['1h'] || 0) : 0;
+            const pressure = data.main.pressure;
+            const wind = data.wind.speed;
+
+            cityOutput.innerHTML = `${t.city} <span>${cityName}</span>`;
+            descriptionOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/2f4f2f/cloud.png" class="icon" alt="Sky"> ${t.sky}: <span>${description}</span>`;
+            temperatureOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/2f4f2f/temperature.png" class="icon" alt="Temp"> ${t.temp}: <span>${temp}°C</span>`;
+            humidityOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/2f4f2f/humidity.png" class="icon" alt="Humidity"> ${t.humidity}: <span>${humidity}%</span>`;
+            precipitationOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/2f4f2f/rain.png" class="icon" alt="Rain"> ${t.rain}: <span>${rain} mm</span>`;
+            pressureOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/2f4f2f/barometer.png" class="icon" alt="Pressure"> ${t.pressure}: <span>${pressure} hPa</span>`;
+            windOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/2f4f2f/wind.png" class="icon" alt="Wind"> ${t.wind}: <span>${wind} m/s</span>`;
+            sunriseOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/2f4f2f/sunrise.png" class="icon" alt="Sunrise"> ${t.sunrise}: <span>${formatTime(data.sys.sunrise)}</span>`;
+            sunsetOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/2f4f2f/sunset.png" class="icon" alt="Sunset"> ${t.sunset}: <span>${formatTime(data.sys.sunset)}</span>`;
+        }
+
+        async function analyzeWeather(data) {
+            const temp = convertKelvinToCelsius(data.main.temp);
+            const humidity = data.main.humidity;
+            const rain = data.rain ? (data.rain['1h'] || 0) : 0;
+            const wind = data.wind.speed;
+            const description = data.weather[0].description.toLowerCase();
+            const t = uiTranslations[currentLanguage];
+
+            let analysis;
+            if (currentLanguage === 'te-IN') {
+                if (temp > 35) analysis = 'ఇది చాలా వేడిగా ఉంది, జాగ్రత్తగా ఉండండి.';
+                else if (rain > 0) analysis = 'వర్షం పడుతోంది, గొడుగు తీసుకోండి.';
+                else if (wind > 10) analysis = 'గాలి బలంగా వీస్తోంది, భద్రంగా ఉండండి.';
+                else if (description.includes('clear')) analysis = 'వాతావరణం స్పష్టంగా ఉంది, ఆనందించండి!';
+                else analysis = 'వాతావరణం సాధారణంగా ఉంది.';
+            } else {
+                if (temp > 35) analysis = 'It’s very hot, stay cautious.';
+                else if (rain > 0) analysis = 'It’s raining, take an umbrella.';
+                else if (wind > 10) analysis = 'It’s windy, stay safe.';
+                else if (description.includes('clear')) analysis = 'The weather is clear, enjoy!';
+                else analysis = 'The weather is normal.';
+            }
+            return analysis;
+        }
+
+        async function speak(text, lang) {
+            const t = uiTranslations[lang];
+            showMessage(t.speakingWeather, 'info');
+            const cacheKey = `${text}_${lang}`;
+            if (audioCache[cacheKey]) {
+                try {
+                    const audio = new Audio(audioCache[cacheKey]);
+                    await audio.play();
+                    return new Promise(resolve => audio.onended = resolve);
+                } catch (err) {
+                    showMessage(t.ttsError, 'error');
+                }
+            }
+            try {
+                const response = await fetch('/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, lang })
+                });
+                if (!response.ok) throw new Error('TTS request failed');
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioCache[cacheKey] = audioUrl;
+                const audio = new Audio(audioUrl);
+                await audio.play();
+                return new Promise(resolve => audio.onended = resolve);
+            } catch (err) {
+                showMessage(t.ttsError, 'error');
+                return Promise.resolve();
+            }
+        }
+
+        async function setLanguage(lang) {
+            currentLanguage = lang;
+            const t = uiTranslations[lang];
+            languageSelection.style.opacity = '0';
+            setTimeout(() => {
+                languageSelection.style.display = 'none';
+                navbar.style.display = 'flex';
+                mainContent.style.display = 'flex';
+                footer.style.display = 'block';
+                navbar.style.opacity = '1';
+                mainContent.style.opacity = '1';
+                footer.style.opacity = '1';
+            }, 300);
+            inputsSection.classList.add('active');
+            cityInput.placeholder = t.placeholder;
+            submitButton.value = t.submit;
+            document.getElementById('navbar-title').textContent = t.navbar;
+            document.getElementById('team-desc').textContent = t.team;
+
+            if (currentWeatherData) {
+                await displayWeather(currentWeatherData, lang);
+                const analysis = await analyzeWeather(currentWeatherData);
+                analysisOutput.innerHTML = `<img src="https://img.icons8.com/ios-filled/30/d81b60/lightning-bolt.png" class="icon" alt="Analysis"> ${t.analysis}: <span>${analysis}</span>`;
+                await speak(analysis, lang);
+            }
+        }
+
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.interimResults = false;
+        recognition.continuous = false;
+        recognition.maxAlternatives = 1;
+        recognition.onresult = async function(event) {
+            const transcript = event.results[0][0].transcript.trim();
+            if (transcript) {
+                cityInput.value = transcript;
+                let cityToFetch = transcript;
+                if (currentLanguage === 'te-IN') {
+                    cityToFetch = await translateToEnglish(transcript, 'te');
+                }
+                await fetchWeatherByCity(cityToFetch);
+                await speak(`Fetching weather for ${transcript}`, currentLanguage);
+            }
+            recognition.stop();
+        };
+        recognition.onerror = async function(event) {
+            const t = uiTranslations[currentLanguage];
+            showMessage(`${t.voiceError}: ${event.error}`, 'error');
+            await speak(t.voiceError, currentLanguage);
+            recognition.stop();
+        };
+
+        submitButton.addEventListener('click', async function() {
+            const t = uiTranslations[currentLanguage];
+            if (!currentLanguage) {
+                showMessage(t.selectLanguage, 'error');
+                return;
+            }
+            if (cityInput.value.trim() === '') {
+                showMessage(t.emptyInput, 'error');
+                await speak(t.emptyInput, currentLanguage);
+                return;
+            }
+            await fetchWeatherByCity(cityInput.value.trim());
+        });
+
+        locationButton.addEventListener('click', async function() {
+            const t = uiTranslations[currentLanguage];
+            if (!currentLanguage) {
+                showMessage(t.selectLanguage, 'error');
+                return;
+            }
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        await fetchWeatherByCoords(lat, lon);
+                    },
+                    async (error) => {
+                        let msg;
+                        switch (error.code) {
+                            case error.PERMISSION_DENIED:
+                                msg = t.locationDenied;
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                msg = t.locationUnavailable;
+                                break;
+                            case error.TIMEOUT:
+                                msg = t.locationTimeout;
+                                break;
+                            default:
+                                msg = t.locationError;
+                        }
+                        showMessage(msg, 'error');
+                        await speak(msg, currentLanguage);
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
+            } else {
+                showMessage(t.locationError, 'error');
+                await speak(t.locationError, currentLanguage);
+            }
+        });
+
+        voiceButton.addEventListener('click', async function() {
+            const t = uiTranslations[currentLanguage];
+            if (!currentLanguage) {
+                showMessage(t.selectLanguage, 'error');
+                return;
+            }
+            recognition.lang = currentLanguage === 'te-IN' ? 'te-IN' : 'en-US';
+            recognition.start();
+            const prompt = t.placeholder;
+            await speak(prompt, currentLanguage);
+        });
+
+        speakOutput.addEventListener('click', async function() {
+            if (!currentWeatherData) {
+                const t = uiTranslations[currentLanguage];
+                showMessage(t.noData, 'error');
+                await speak(t.noData, currentLanguage);
+                return;
+            }
+            const data = currentWeatherData;
+            const t = uiTranslations[currentLanguage];
+            const description = await translateText(data.weather[0].description, currentLanguage);
+            const cityName = await translateText(data.name, currentLanguage);
+            const temp = convertKelvinToCelsius(data.main.temp);
+            const humidity = data.main.humidity;
+            const rain = data.rain ? (data.rain['1h'] || 0) : 0;
+            const pressure = data.main.pressure;
+            const wind = data.wind.speed;
+            const sunrise = formatTime(data.sys.sunrise);
+            const sunset = formatTime(data.sys.sunset);
+
+            const tempWords = numberToWords(Math.round(temp), currentLanguage);
+            const humidityWords = numberToWords(humidity, currentLanguage);
+            const rainWords = numberToWords(Math.round(rain), currentLanguage);
+            const pressureWords = numberToWords(pressure % 100, currentLanguage);
+            const windWords = numberToWords(Math.round(wind), currentLanguage);
+
+            const weatherReport = currentLanguage === 'en-US' ?
+                `${t.city} ${cityName}: ${t.sky} is ${description}, ${t.temp} is ${tempWords} degrees Celsius, ${t.humidity} is ${humidityWords} percent, ${t.rain} is ${rainWords} millimeters, ${t.pressure} is ${pressureWords} hundred hectopascals, ${t.wind} speed is ${windWords} meters per second, ${t.sunrise} at ${sunrise}, ${t.sunset} at ${sunset}.` :
+                `${cityName} ${t.city}: ${t.sky} ${description}, ${t.temp} ${tempWords} డిగ్రీల సెల్సియస్, ${t.humidity} ${humidityWords} శాతం, ${t.rain} ${rainWords} మిల్లీమీటర్లు, ${t.pressure} ${pressureWords} వంద హెక్టోపాస్కల్స్, ${t.wind} వేగం ${windWords} మీటర్లు పర్ సెకండ్, ${t.sunrise} ${sunrise}, ${t.sunset} ${sunset}.`;
+
+            const analysis = await analyzeWeather(data);
+            await speak(weatherReport, currentLanguage);
+            await speak(analysis, currentLanguage);
+        });
+
+        // Back-to-Top Functionality
+        window.onscroll = function() {
+            const backToTop = document.getElementById('backToTop');
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize page
+        window.onload = function() {
+            showMessage('Please select a language to continue / దయచేసి భాషను ఎంచుకోండి.', 'info');
+            inputsSection.classList.remove('active');
+            languageSelection.style.display = 'block';
+            navbar.style.display = 'none';
+            mainContent.style.display = 'none';
+            footer.style.display = 'none';
+            languageSelection.style.opacity = '1';
+            navbar.style.opacity = '0';
+            mainContent.style.opacity = '0';
+            footer.style.opacity = '0';
+        };
+    </script>
+</body>
+</html>

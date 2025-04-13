@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CropConnectAI - Account Page">
+    <meta name="keywords" content="CropConnectAI, Account, Logout, Translation, Speech Synthesis">
+    <meta name="author" content="CropConnectAI Team">
+    <link rel="icon" type="image/png" href="/static/images/Croplogo.png">
+    <title id="pageTitle">Account | CropConnectAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            color: #2e7d32;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/images/farming.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) opacity(0.8);
+            z-index: -1;
+        }
+
+        .navbar {
+            background-color: #388e3c;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .navbar-title {
+            margin: 0;
+            font-size: 28px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #ffeb3b;
+        }
+
+        .language-toggle {
+            text-align: center;
+            margin: 20vh auto;
+            width: fit-content;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease;
+        }
+
+        .language-toggle button {
+            background-color: #388e3c;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .language-toggle button:hover {
+            background-color: #2e7d32;
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .logout-btn {
+            background: #d32f2f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #b71c1c;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(183, 28, 28, 0.4);
+        }
+
+        .translate-btn, .speak-btn {
+            background: #66bb6a;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 25px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .translate-btn:hover, .speak-btn:hover {
+            background: #4caf50;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 1001;
+        }
+
+        .popup p {
+            margin: 0 0 20px;
+        }
+
+        .popup button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .yes-btn {
+            background: #66bb6a;
+            color: white;
+        }
+
+        .yes-btn:hover {
+            background: #4caf50;
+        }
+
+        .no-btn {
+            background: #757575;
+            color: white;
+        }
+
+        .no-btn:hover {
+            background: #616161;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            z-index: 2000;
+            opacity: 0;
+            animation: fadeInOut 3s forwards;
+        }
+
+        .success {
+            background-color: #4caf50;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translateX(-50%); }
+            90% { opacity: 1; transform: translateX(-50%); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
+        footer {
+            background-color: #2e7d32;
+            color: #f5f5f5;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+            width: 100%;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .contact-links a {
+            color: #b2fab4;
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            transition: color 0.3s ease;
+        }
+
+        .contact-links a:hover {
+            color: #ffffff;
+        }
+
+        .contact-links i {
+            margin-right: 0.3rem;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .navbar-title {
+                font-size: 22px;
+            }
+
+            .navbar a {
+                font-size: 14px;
+            }
+
+            .language-toggle {
+                margin: 15vh auto;
+                padding: 15px;
+            }
+
+            .language-toggle button {
+                padding: 8px 15px;
+                margin: 5px;
+                font-size: 14px;
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+
+            .logout-btn, .translate-btn, .speak-btn {
+                width: 100%;
+                margin: 5px 0;
+                padding: 12px;
+            }
+
+            .popup {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .popup button {
+                width: 45%;
+                padding: 8px;
+            }
+
+            footer {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Selection -->
+    <div class="language-toggle" id="languageToggle">
+        <button onclick="showLanguage('en-US')">English</button>
+        <button onclick="showLanguage('te-IN')">తెలుగు</button>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-title" id="navbarTitle">CropConnectAI - Account</div>
+        <a href="{{ url_for('home') }}"><i class="fas fa-home"></i></a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <h2 id="containerTitle">Logout</h2>
+            <p id="logoutText">Click below to log out</p>
+            <button class="translate-btn" onclick="translateText()" id="translateBtn">Translate</button>
+            <button class="speak-btn" onclick="speakText()">🔊 Speak</button>
+            <button class="logout-btn" onclick="showPopup()">Logout</button>
+        </div>
+
+        <div class="popup" id="logoutPopup">
+            <p id="popupText">Are you sure you want to log out?</p>
+            <button class="yes-btn" onclick="logout()" id="yesBtn">Yes</button>
+            <button class="no-btn" onclick="hidePopup()" id="noBtn">No</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <p id="teamDesc"></p>
+        <div class="contact-links">
+            <a href="mailto:shivakumar.working@gmail.com"><i class="fas fa-envelope"></i><span id="footerEmail"></span></a>
+            <a href="https://github.com/shivkumars005" target="_blank"><i class="fab fa-github"></i><span id="footerGithub"></span></a>
+            <a href="https://linkedin.com/in/shivakumarsouta" target="_blank"><i class="fab fa-linkedin"></i><span id="footerLinkedin"></span></a>
+            <a href="#"><i class="fas fa-map-marker-alt"></i><span id="footerLocation"></span></a>
+        </div>
+    </footer>
+
+    <script>
+        let currentLanguage = null;
+
+        const uiTranslations = {
+            'en-US': {
+                pageTitle: 'Account | CropConnectAI',
+                navbarTitle: 'CropConnectAI - Account',
+                containerTitle: 'Logout',
+                logoutText: 'Click below to log out',
+                translateBtn: 'Translate to Telugu',
+                speakBtn: 'Speak',
+                popupText: 'Are you sure you want to log out?',
+                yesBtn: 'Yes',
+                noBtn: 'No',
+                logoutMessage: 'You have been successfully logged out.',
+                teamDesc: 'CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions.',
+                footerEmail: 'Email',
+                footerGithub: 'GitHub',
+                footerLinkedin: 'LinkedIn',
+                footerLocation: 'Hyderabad, Telangana'
+            },
+            'te-IN': {
+                pageTitle: 'ఖాతా | క్రాప్‌కనెక్ట్AI',
+                navbarTitle: 'క్రాప్‌కనెక్ట్AI - ఖాతా',
+                containerTitle: 'లాగ్అవుట్',
+                logoutText: 'లాగ్అవుట్ చేయడానికి దిగువ క్లిక్ చేయండి',
+                translateBtn: 'ఇంగ్లీష్‌కి అనువదించు',
+                speakBtn: 'మాట్లాడు',
+                popupText: 'మీరు ఖచ్చితంగా లాగ్అవుట్ చేయాలనుకుంటున్నారా?',
+                yesBtn: 'అవును',
+                noBtn: 'కాదు',
+                logoutMessage: 'మీరు విజయవంతంగా లాగ్అవుట్ అయ్యారు.',
+                teamDesc: 'క్రాప్‌కనెక్ట్‌ఏఐ హైదరాబాద్, తెలంగాణ నుండి ఒక ఉత్సాహవంతమైన బృందం చేత నిర్మించబడింది, ఇది రైతులకు ఏఐ-ఆధారిత పరిష్కారాలతో సాధికారత కల్పించడానికి అంకితం చేయబడింది.',
+                footerEmail: 'ఇమెయిల్',
+                footerGithub: 'గిట్‌హబ్',
+                footerLinkedin: 'లింక్డ్‌ఇన్',
+                footerLocation: 'హైదరాబాద్, తెలంగాణ'
+            }
+        };
+
+        function showMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            msg.textContent = text;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+
+        function showLanguage(lang) {
+            currentLanguage = lang;
+            const t = uiTranslations[lang];
+
+            // Update page title
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+
+            // Update navbar
+            document.getElementById('navbarTitle').textContent = t.navbarTitle;
+
+            // Update main content
+            document.getElementById('containerTitle').textContent = t.containerTitle;
+            document.getElementById('logoutText').textContent = t.logoutText;
+            document.getElementById('translateBtn').textContent = t.translateBtn;
+            document.getElementById('popupText').textContent = t.popupText;
+            document.getElementById('yesBtn').textContent = t.yesBtn;
+            document.getElementById('noBtn').textContent = t.noBtn;
+
+            // Update footer
+            document.getElementById('teamDesc').textContent = t.teamDesc;
+            document.getElementById('footerEmail').textContent = t.footerEmail;
+            document.getElementById('footerGithub').textContent = t.footerGithub;
+            document.getElementById('footerLinkedin').textContent = t.footerLinkedin;
+            document.getElementById('footerLocation').textContent = t.footerLocation;
+
+            // Show content
+            document.getElementById('languageToggle').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('languageToggle').style.display = 'none';
+                document.getElementById('navbar').style.display = 'flex';
+                document.getElementById('mainContent').classList.add('active');
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('navbar').style.opacity = '1';
+                document.getElementById('mainContent').style.opacity = '1';
+                document.getElementById('footer').style.opacity = '1';
+            }, 300);
+        }
+
+        function showPopup() {
+            document.getElementById('logoutPopup').style.display = 'block';
+        }
+
+        function hidePopup() {
+            document.getElementById('logoutPopup').style.display = 'none';
+        }
+
+        function logout() {
+            const t = uiTranslations[currentLanguage] || uiTranslations['en-US'];
+            showMessage(t.logoutMessage, 'success');
+            setTimeout(() => {
+                window.location.href = 'http://127.0.0.1:5000';
+            }, 2500);
+        }
+
+        function translateText() {
+            const targetLang = currentLanguage === 'en-US' ? 'te-IN' : 'en-US';
+            showLanguage(targetLang);
+        }
+
+        function speakText() {
+            const text = document.getElementById('logoutText').innerText;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = currentLanguage || 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        window.onload = function() {
+            showMessage(uiTranslations['en-US'].selectLanguage || 'Please select a language to continue.', 'info');
+            document.getElementById('languageToggle').style.display = 'block';
+            document.getElementById('navbar').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('active');
+            document.getElementById('footer').style.display = 'none';
+            document.getElementById('languageToggle').style.opacity = '1';
+            document.getElementById('navbar').style.opacity = '0';
+            document.getElementById('mainContent').style.opacity = '0';
+            document.getElementById('footer').style.opacity = '0';
+        };
+    </script>
+</body>
+</html>

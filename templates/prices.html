@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CropConnectAI - Market Prices">
+    <meta name="keywords" content="CropConnectAI, Agriculture, Crop Prices">
+    <meta name="author" content="CropConnectAI Team">
+    <link rel="icon" type="image/png" href="/static/images/Croplogo.png">
+    <title id="pageTitle">CropConnectAI - Market Prices</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            color: #2e7d32;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/images/farming.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(1px) opacity(0.8);
+            z-index: -1;
+        }
+        .navbar {
+            background-color: #388e3c;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0; /* Changed from 44px to 0 to remove extra space */
+            z-index: 1000;
+            margin-top: 0; /* Ensure no extra space */
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #ffffff;
+        }
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: #ffeb3b;
+        }
+        .navbar .nav-links {
+            display: flex;
+            align-items: center;
+        }
+        main {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 700px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .language-selection {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .language-selection button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 20px;
+            background-color: #66bb6a;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .language-selection button:hover {
+            background-color: #4caf50;
+            transform: scale(1.05);
+        }
+        .inputs {
+            padding: 2rem;
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            background: #e0f2e9;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        .inputs.active {
+            display: flex;
+        }
+        .inputs:hover {
+            transform: scale(1.02);
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        .inputs input[type='text'], .inputs select {
+            height: 3.5rem;
+            width: 22rem;
+            background: #f1f8e9;
+            font-size: 1.1rem;
+            padding: 10px 15px;
+            border: 2px solid #66bb6a;
+            border-radius: 25px;
+            outline: none;
+            color: #2e7d32;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .inputs input[type='text']:focus, .inputs select:focus {
+            border-color: #388e3c;
+            box-shadow: 0 0 10px rgba(56, 142, 60, 0.5);
+        }
+        .inputs input[type="submit"],
+        .inputs button {
+            height: 3.5rem;
+            width: 3.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #66bb6a;
+        }
+        .inputs input[type="submit"] {
+            width: 10rem;
+        }
+        .inputs input[type="submit"]:hover,
+        .inputs button:hover {
+            background-color: #4caf50;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+        #outputArea {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            text-align: center;
+        }
+        #suggestions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e0f2e9;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        canvas {
+            width: 100% !important;
+            max-width: 400px;
+            margin: 10px auto;
+        }
+        #errorMessage {
+            color: #d32f2f;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+        #backToTop {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ff9800;
+            color: #ffffff;
+            padding: 10px 15px;
+            border-radius: 50%;
+            display: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        #backToTop:hover {
+            background-color: #f57c00;
+        }
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            z-index: 2000;
+            opacity: 0;
+            animation: fadeInOut 3s forwards;
+        }
+        .success {
+            background-color: #4caf50;
+        }
+        .error {
+            background-color: #d32f2f;
+        }
+        .info {
+            background-color: #0288d1;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translateX(-50%); }
+            90% { opacity: 1; transform: translateX(-50%); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            .navbar h1 {
+                font-size: 24px;
+            }
+            .navbar .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+            .navbar a {
+                margin: 5px;
+                font-size: 14px;
+            }
+            .container {
+                width: 100%;
+                padding: 20px;
+            }
+            .inputs {
+                padding: 1rem;
+            }
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .inputs input[type='text'], .inputs select {
+                width: 100%;
+                height: 3rem;
+            }
+            .inputs input[type="submit"],
+            .inputs button {
+                height: 3rem;
+                width: 3rem;
+            }
+            .inputs input[type="submit"] {
+                width: 8rem;
+            }
+            canvas {
+                max-width: 100%;
+            }
+        }
+        /* Visual price representation */
+        .price-visual {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .price-card {
+            background: #ffffff;
+            border: 2px solid #66bb6a;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            width: 120px;
+        }
+        .price-card img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+        .price-card p {
+            margin: 3px 0;
+            font-size: 14px;
+            color: #2e7d32;
+        }
+        .price-bar {
+            height: 15px;
+            background: #4caf50;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        @media (max-width: 600px) {
+            .price-card {
+                width: 100%;
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar: Home link with icon -->
+    <nav class="navbar">
+        <h1 id="navbarTitle">CropConnectAI - Market prices</h1>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}" id="navHome">🏠 Home</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <div class="language-selection" id="languageSelection">
+                <button id="englishBtn">English</button>
+                <button id="teluguBtn">తెలుగు</button>
+            </div>
+            <section class="inputs" id="inputsSection">
+                <div class="input-group">
+                    <input type="text" id="locationInput" placeholder="">
+                    <button id="voiceLocationButton"><img src="https://img.icons8.com/ios-filled/30/ffffff/microphone.png" class="icon" alt="Mic"></button>
+                    <button id="locationButton"><img src="https://img.icons8.com/ios-filled/30/ffffff/marker.png" class="icon" alt="Location"></button>
+                </div>
+                <div class="input-group">
+                    <select id="cropInput">
+                        <option value=""></option>
+                    </select>
+                    <button id="voiceCropButton"><img src="https://img.icons8.com/ios-filled/30/ffffff/microphone.png" class="icon" alt="Mic"></button>
+                </div>
+                <div class="button-group">
+                    <input type="submit" value="" id="submitButton">
+                </div>
+            </section>
+
+            <!-- Output Area -->
+            <div id="outputArea">
+                <div id="marketPrices"></div>
+                <div id="priceVisual" class="price-visual"></div>
+                <canvas id="priceChart"></canvas>
+                <button class="icon-button" onclick="speakOutput()">🔊</button>
+            </div>
+
+            <!-- Suggestions Area -->
+            <div id="suggestions"></div>
+
+            <!-- Error Message -->
+            <div id="errorMessage"></div>
+        </div>
+    </main>
+
+    <!-- Back-to-Top Button -->
+    <button id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <script>
+        const CROPS = [
+            'Rice', 'Wheat', 'Maize', 'Millet', 'Barley', 'Sorghum',
+            'Lentils', 'Chickpeas', 'Soybeans', 'Groundnuts', 'Cotton', 'Sugarcane',
+            'Sunflower', 'Mustard', 'Sesame', 'Pigeon Pea', 'Green Gram', 'Black Gram',
+            'Pearl Millet', 'Finger Millet', 'Oats', 'Rye', 'Triticale', 'Flaxseed',
+            'Castor Seed', 'Jute', 'Mung Bean', 'Cowpea', 'Safflower', 'Tobacco'
+        ];
+        let apiData = [];
+        const API_KEY = "579b464db66ec23bdd00000102359d9ce7504956519a22b6fb9a571c";
+        const RESOURCE_ID_1 = "9ef84268-d588-465a-a308-a864a43d0070";
+        const RESOURCE_ID_2 = "cef25fe2-9231-4128-8aec-2c948fedd43f";
+        let currentLanguage = null;
+        let audioCache = {};
+
+        const uiTranslations = {
+            'en-US': {
+                title: 'CropConnectAI - Market Prices',
+                navbarTitle: 'CropConnectAI - Market Prices',
+                navHome: 'Home',
+                englishBtn: 'English',
+                teluguBtn: 'Telugu',
+                locationPlaceholder: 'Enter location...',
+                cropPlaceholder: 'Select a crop...',
+                submit: 'Get Prices',
+                voiceError: 'Voice input failed. Please try again.',
+                locationDenied: 'Location access denied. Please enable it in settings.',
+                locationUnavailable: 'Location unavailable. Try entering a city name.',
+                locationTimeout: 'Location request timed out. Please try again.',
+                locationError: 'Error fetching location. Please try manually.',
+                noData: 'No price data available. Try another crop or location.',
+                fetchingData: 'Fetching market prices...',
+                speakingPrices: 'Speaking market prices...',
+                ttsError: 'Error playing audio. Please try again.',
+                selectLanguage: 'Please select a language to continue.'
+            },
+            'te-IN': {
+                title: 'క్రాప్‌కనెక్ట్‌ఏఐ - మార్కెట్ ధరలు',
+                navbarTitle: 'క్రాప్‌కనెక్ట్‌ఏఐ - మార్కెట్ ధరలు',
+                navHome: 'హోమ్',
+                englishBtn: 'ఆంగ్లం',
+                teluguBtn: 'తెలుగు',
+                locationPlaceholder: 'స్థానాన్ని నమోదు చేయండి...',
+                cropPlaceholder: 'పంటను ఎంచుకోండి...',
+                submit: 'ధరలు పొందండి',
+                voiceError: 'వాయిస్ ఇన్‌పుట్ విఫలమైంది. మళ్లీ ప్రయత్నించండి.',
+                locationDenied: 'స్థాన అనుమతి నిరాకరించబడింది. సెట్టింగ్‌లలో అనుమతించండి.',
+                locationUnavailable: 'స్థానం అందుబాటులో లేదు. నగరం పేరు ఎంటర్ చేయండి.',
+                locationTimeout: 'స్థాన అభ్యర్థన సమయం ముగిసింది. మళ్లీ ప్రయత్నించండి.',
+                locationError: 'స్థానం పొందడంలో లోపం. మాన్యువల్‌గా ప్రయత్నించండి.',
+                noData: 'ధర డేటా లేదు. వేరే పంట లేదా స్థానాన్ని ప్రయత్నించండి.',
+                fetchingData: 'మార్కెట్ ధరలు సేకరిస్తోంది...',
+                speakingPrices: 'మార్కెట్ ధరలు మాట్లాడుతోంది...',
+                ttsError: 'ఆడియో ప్లే చేయడంలో లోపం. మళ్లీ ప్రయత్నించండి.',
+                selectLanguage: 'దయచేసి భాషను ఎంచుకోండి.'
+            }
+        };
+
+        async function fetchAllData() {
+            let offset = 0;
+            const limit = 1000;
+            try {
+                const cacheKey = 'cropPriceData';
+                const cachedData = localStorage.getItem(cacheKey);
+                if (cachedData) {
+                    apiData = JSON.parse(cachedData);
+                    console.log('Loaded from cache:', apiData.length, 'records');
+                    return;
+                }
+
+                while (true) {
+                    const url = `https://api.data.gov.in/resource/${RESOURCE_ID_1}?api-key=${API_KEY}&format=json&limit=${limit}&offset=${offset}`;
+                    const response = await fetch(url, { cache: 'force-cache' });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    if (!data.records || data.records.length === 0) break;
+                    apiData = apiData.concat(data.records);
+                    offset += limit;
+                    if (data.records.length < limit) break;
+                }
+
+                localStorage.setItem(cacheKey, JSON.stringify(apiData));
+                console.log('API Data Loaded:', apiData.length, 'records');
+            } catch (error) {
+                console.error('Error fetching API data:', error);
+                showMessage('Error loading data. Please check your connection.', 'error');
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            msg.textContent = text;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+
+        async function setLanguage(lang) {
+            currentLanguage = lang;
+            const t = uiTranslations[lang];
+            document.getElementById('pageTitle').textContent = t.title;
+            document.getElementById('navbarTitle').textContent = t.navbarTitle;
+            document.getElementById('navHome').textContent = `🏠 ${t.navHome}`;
+            document.getElementById('englishBtn').textContent = t.englishBtn;
+            document.getElementById('teluguBtn').textContent = t.teluguBtn;
+            document.getElementById('languageSelection').style.display = 'none';
+            document.getElementById('inputsSection').classList.add('active');
+            document.getElementById('locationInput').placeholder = t.locationPlaceholder;
+            document.getElementById('submitButton').value = t.submit;
+            await populateCropDropdown();
+        }
+
+        async function translateText(text, lang) {
+            if (lang === 'en-US') return text;
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|te`, { cache: 'force-cache' });
+                const data = await response.json();
+                return data.responseData.translatedText || text;
+            } catch (error) {
+                console.error('Translation error:', error);
+                return text;
+            }
+        }
+
+        async function translateToEnglish(text, sourceLang) {
+            try {
+                const response = await fetch(
+                    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=en&dt=t&q=${encodeURIComponent(text)}`,
+                    { cache: 'force-cache' }
+                );
+                const data = await response.json();
+                return data[0][0][0] || text;
+            } catch (error) {
+                console.error('Translation error:', error);
+                return text;
+            }
+        }
+
+        function startSpeechRecognition(inputId) {
+            if (!currentLanguage) {
+                showMessage('Please select a language first.', 'error');
+                return;
+            }
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = currentLanguage === 'te-IN' ? 'te-IN' : 'en-US';
+            recognition.start();
+            recognition.onresult = async function(event) {
+                let spokenText = event.results[0][0].transcript.trim();
+                const input = document.getElementById(inputId);
+                const t = uiTranslations[currentLanguage];
+                if (inputId === 'locationInput') {
+                    if (currentLanguage === 'te-IN') {
+                        spokenText = await translateToEnglish(spokenText, 'te');
+                    }
+                    input.value = spokenText;
+                } else if (inputId === 'cropInput') {
+                    const options = Array.from(input.options);
+                    const match = options.find(opt => opt.value.toLowerCase().includes(spokenText.toLowerCase()));
+                    if (match) {
+                        input.value = match.value;
+                    } else {
+                        showMessage(`${t.noData} "${spokenText}"`, 'error');
+                    }
+                }
+            };
+            recognition.onerror = function(event) {
+                const t = uiTranslations[currentLanguage] || uiTranslations['en-US'];
+                showMessage(`${t.voiceError}: ${event.error}`, 'error');
+            };
+        }
+
+        async function fetchLocation() {
+            if (!currentLanguage) {
+                showMessage('Please select a language first.', 'error');
+                return;
+            }
+            const t = uiTranslations[currentLanguage];
+            if (!navigator.geolocation) {
+                showMessage(t.locationError, 'error');
+                return;
+            }
+
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(
+                        resolve,
+                        (error) => {
+                            let msg;
+                            switch (error.code) {
+                                case error.PERMISSION_DENIED:
+                                    msg = t.locationDenied;
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    msg = t.locationUnavailable;
+                                    break;
+                                case error.TIMEOUT:
+                                    msg = t.locationTimeout;
+                                    break;
+                                default:
+                                    msg = t.locationError;
+                            }
+                            reject(new Error(msg));
+                        },
+                        { timeout: 5000, enableHighAccuracy: false }
+                    );
+                });
+
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                try {
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10`,
+                        { cache: 'force-cache' }
+                    );
+                    if (!response.ok) throw new Error('Reverse geocoding failed');
+                    const data = await response.json();
+                    const area = data.address.district || data.address.town || data.address.city || data.address.village || 'Unknown';
+                    document.getElementById('locationInput').value = area;
+                    showMessage(`Location fetched: ${area}`, 'success');
+                } catch (error) {
+                    console.error('Geocoding error:', error);
+                    showMessage(t.locationError, 'error');
+                }
+            } catch (error) {
+                console.error('Geolocation error:', error);
+                showMessage(error.message, 'error');
+            }
+        }
+
+        async function populateCropDropdown() {
+            const cropInput = document.getElementById('cropInput');
+            const t = uiTranslations[currentLanguage];
+            cropInput.innerHTML = `<option value="">${t.cropPlaceholder}</option>`;
+            for (let crop of CROPS) {
+                const translated = currentLanguage === 'te-IN' ? await translateText(crop, 'te-IN') : crop;
+                const option = document.createElement('option');
+                option.value = crop;
+                option.text = translated;
+                cropInput.appendChild(option);
+            }
+        }
+
+        async function getMarketPrices() {
+            if (!currentLanguage) {
+                showMessage('Please select a language first.', 'error');
+                return;
+            }
+            const location = document.getElementById('locationInput').value.trim();
+            const crop = document.getElementById('cropInput').value;
+            const marketPricesDiv = document.getElementById('marketPrices');
+            const priceVisualDiv = document.getElementById('priceVisual');
+            const errorMessageDiv = document.getElementById('errorMessage');
+            const t = uiTranslations[currentLanguage];
+
+            errorMessageDiv.innerText = '';
+            marketPricesDiv.innerHTML = '';
+            priceVisualDiv.innerHTML = '';
+            showMessage(t.fetchingData, 'info');
+
+            if (!location || !crop) {
+                showMessage(t.noData, 'error');
+                return;
+            }
+
+            const market = [...new Set(apiData.map(record => record.market))].find(m => m.toLowerCase().includes(location.toLowerCase()));
+            const record = apiData.find(r => r.commodity.toLowerCase() === crop.toLowerCase() && (!market || r.market === market));
+            if (record) {
+                const data = {
+                    min_price: parseFloat(record.min_price) || 0,
+                    max_price: parseFloat(record.max_price) || 0,
+                    avg_price: parseFloat(record.modal_price) || 0
+                };
+                const unit = record.unit || 'Quintal';
+                const pricesText = `Minimum: ₹${data.min_price}/${unit}<br>Maximum: ₹${data.max_price}/${unit}<br>Average: ₹${data.avg_price}/${unit}`;
+                marketPricesDiv.innerHTML = currentLanguage === 'te-IN' ? await translateText(pricesText, 'te-IN') : pricesText;
+
+                // Visual price representation with full names
+                const maxBarWidth = 100;
+                const maxPrice = Math.max(data.min_price, data.max_price, data.avg_price, 1000);
+                const priceLabels = currentLanguage === 'te-IN' ? ['కనీసం', 'గరిష్ఠం', 'సగటు'] : ['Minimum', 'Maximum', 'Average'];
+                const priceIcons = {
+                    min: 'https://img.icons8.com/color/48/000000/low-price.png',
+                    max: 'https://img.icons8.com/color/48/000000/expensive-price.png', // Replaced max icon
+                    avg: 'https://img.icons8.com/color/48/000000/average.png'
+                };
+                ['min_price', 'max_price', 'avg_price'].forEach((key, index) => {
+                    const price = data[key];
+                    const barWidth = (price / maxPrice) * maxBarWidth;
+                    const card = `
+                        <div class="price-card">
+                            <img src="${priceIcons[key.split('_')[0]]}" alt="${priceLabels[index]}">
+                            <p>${priceLabels[index]}</p>
+                            <p>₹${price}</p>
+                            <div class="price-bar" style="width: ${barWidth}px;"></div>
+                        </div>
+                    `;
+                    priceVisualDiv.innerHTML += card;
+                });
+
+                const ctx = document.getElementById('priceChart').getContext('2d');
+                if (window.priceChart) window.priceChart.destroy();
+                window.priceChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: currentLanguage === 'te-IN' ? ['కనీస ధర', 'గరిష్ఠ ధర', 'సగటు ధర'] : ['Minimum Price', 'Maximum Price', 'Average Price'],
+                        datasets: [{
+                            label: crop,
+                            data: [data.min_price, data.max_price, data.avg_price],
+                            backgroundColor: ['#81c784', '#4caf50', '#388e3c']
+                        }]
+                    },
+                    options: {
+                        scales: { y: { beginAtZero: true } },
+                        animation: false
+                    }
+                });
+
+                await generateSuggestions(crop);
+                showMessage(`Prices fetched for ${crop} in ${location}`, 'success');
+            } else {
+                showMessage(`${t.noData} for ${crop} in ${location}`, 'error');
+            }
+        }
+
+        async function generateSuggestions(crop) {
+            const suggestionsDiv = document.getElementById('suggestions');
+            const suggestions = {
+                'Rice': ['Use drip irrigation to save water.', 'Apply nitrogen fertilizers timely.', 'Monitor for pests regularly.'],
+                'Wheat': ['Ensure proper soil drainage.', 'Use certified seeds for planting.', 'Rotate crops to prevent disease.'],
+                'Maize': ['Maintain soil pH around 6.5.', 'Apply potassium fertilizers.', 'Use hybrid varieties for better yield.'],
+                'Millet': ['Use intercropping for better yield.', 'Apply organic manure.', 'Monitor water levels closely.'],
+                'Barley': ['Sow early to avoid heat stress.', 'Use resistant varieties.', 'Ensure proper drainage.'],
+                'Sorghum': ['Apply phosphorus at planting.', 'Use drought-tolerant varieties.', 'Monitor for pests.'],
+                'Lentils': ['Inoculate seeds with rhizobium.', 'Avoid waterlogging.', 'Apply sulfur fertilizers.'],
+                'Chickpeas': ['Use well-drained soil.', 'Apply boron if deficient.', 'Monitor for fungal diseases.'],
+                'Soybeans': ['Inoculate seeds for nitrogen fixation.', 'Maintain soil pH.', 'Use row planting.'],
+                'Groundnuts': ['Apply gypsum for pod development.', 'Ensure calcium availability.', 'Rotate with cereals.'],
+                'Cotton': ['Use Bt varieties for pest resistance.', 'Apply potassium fertilizers.', 'Monitor water needs.'],
+                'Sugarcane': ['Use trench planting for better yield.', 'Apply nitrogen in splits.', 'Ensure adequate irrigation.']
+            };
+            let suggestionText = suggestions[crop] ? suggestions[crop].join('<br>') : 'No suggestions available.';
+            if (currentLanguage === 'te-IN') {
+                suggestionText = await translateText(suggestionText, 'te-IN');
+            }
+            suggestionsDiv.innerHTML = suggestionText;
+        }
+
+        async function speakOutput() {
+            if (!currentLanguage) {
+                showMessage('Please select a language first.', 'error');
+                return;
+            }
+            const text = document.getElementById('marketPrices').innerText;
+            const t = uiTranslations[currentLanguage];
+            if (!text) {
+                showMessage(t.noData, 'error');
+                return;
+            }
+            showMessage(t.speakingPrices, 'info');
+            const cacheKey = `${text}_${currentLanguage}`;
+            if (audioCache[cacheKey]) {
+                const audio = new Audio(audioCache[cacheKey]);
+                audio.play();
+                return;
+            }
+            try {
+                const response = await fetch('/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, lang: currentLanguage })
+                });
+                if (!response.ok) throw new Error('TTS request failed');
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioCache[cacheKey] = audioUrl;
+                const audio = new Audio(audioUrl);
+                audio.play();
+            } catch (err) {
+                console.error('TTS Error:', err);
+                showMessage(t.ttsError, 'error');
+            }
+        }
+
+        window.onscroll = function() {
+            const backToTop = document.getElementById('backToTop');
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = async function() {
+            showMessage('Please select a language to continue.', 'info');
+            document.getElementById('inputsSection').classList.remove('active');
+            document.getElementById('languageSelection').style.display = 'block';
+            await fetchAllData();
+        };
+
+        document.getElementById('englishBtn').addEventListener('click', () => setLanguage('en-US'));
+        document.getElementById('teluguBtn').addEventListener('click', () => setLanguage('te-IN'));
+        document.getElementById('voiceLocationButton').addEventListener('click', () => startSpeechRecognition('locationInput'));
+        document.getElementById('voiceCropButton').addEventListener('click', () => startSpeechRecognition('cropInput'));
+        document.getElementById('locationButton').addEventListener('click', fetchLocation);
+        document.getElementById('submitButton').addEventListener('click', getMarketPrices);
+    </script>
+</body>
+</html>

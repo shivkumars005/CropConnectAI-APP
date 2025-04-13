@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CropConnectAI - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+        }
+
+        .language-selection {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .language-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            margin: 0 0.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: clamp(0.9rem, 4vw, 1rem);
+            transition: background-color 0.3s;
+        }
+
+        .language-btn:hover {
+            background-color: #388e3c;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(140px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            flex: 1;
+            display: none; /* Hidden initially */
+        }
+
+        .nav-btn {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .nav-btn i {
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            color: #4caf50;
+        }
+
+        .nav-btn span {
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            color: #333;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background-color: #2e7d32;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+            display: none; /* Hidden initially */
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .contact-links a {
+            color: #a5d6a7;
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            transition: color 0.3s;
+        }
+
+        .contact-links a:hover {
+            color: #ffffff;
+        }
+
+        .contact-links i {
+            margin-right: 0.3rem;
+        }
+
+        @media (max-width: 900px) {
+            .nav-grid {
+                grid-template-columns: repeat(2, minmax(140px, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-grid {
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+
+            .nav-btn {
+                padding: 0.75rem;
+            }
+
+            .language-btn {
+                padding: 0.6rem 1rem;
+                margin: 0.5rem;
+            }
+
+            header {
+                padding: 0.75rem;
+            }
+
+            footer {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="header-title">CropConnectAI</h1>
+    </header>
+
+    <div class="language-selection">
+        <button class="language-btn" onclick="setLanguage('en')">English</button>
+        <button class="language-btn" onclick="setLanguage('te')">తెలుగు</button>
+    </div>
+
+    <div class="nav-grid" id="nav-grid">
+        <a href="{{ url_for('login') }}" class="nav-btn">
+            <i class="fas fa-indian-rupee-sign"></i>
+            <span id="prices-btn">Crop Prices</span>
+        </a>
+        <a href="{{ url_for('weather') }}" class="nav-btn">
+            <i class="fas fa-cloud-sun"></i>
+            <span id="weather-btn">Weather</span>
+        </a>
+        <a href="{{ url_for('rotation') }}" class="nav-btn">
+            <i class="fas fa-rotate"></i>
+            <span id="rotation-btn">Crop Rotation</span>
+        </a>
+        <a href="{{ url_for('fertilizers') }}" class="nav-btn">
+            <i class="fas fa-leaf"></i>
+            <span id="fertilizers-btn">Fertilizers</span>
+        </a>
+        <a href="{{ url_for('community') }}" class="nav-btn">
+            <i class="fas fa-users"></i>
+            <span id="community-btn">Community</span>
+        </a>
+        <a href="{{ url_for('bot') }}" class="nav-btn">
+            <i class="fas fa-robot"></i>
+            <span id="bot-btn">Bot</span>
+        </a>
+        <a href="{{ url_for('account') }}" class="nav-btn">
+            <i class="fas fa-user-circle"></i>
+            <span id="account-btn">Account</span>
+        </a>
+        <a href="{{ url_for('terms') }}" class="nav-btn">
+            <i class="fas fa-circle-info"></i>
+            <span id="about-btn">About</span>
+        </a>
+    </div>
+
+    <footer id="footer">
+        <p id="team-desc">
+            CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions.
+        </p>
+        <div class="contact-links">
+            <a href="mailto:shivakumar.working@gmail.com"><i class="fas fa-envelope"></i>Email</a>
+            <a href="https://github.com/shivkumars005" target="_blank"><i class="fab fa-github"></i>GitHub</a>
+            <a href="https://linkedin.com/in/shivakumarsouta" target="_blank"><i class="fab fa-linkedin"></i>LinkedIn</a>
+            <a href="#"><i class="fas fa-map-marker-alt"></i>Hyderabad, Telangana</a>
+        </div>
+    </footer>
+
+    <script>
+        const translations = {
+            en: {
+                header: "CropConnectAI",
+                prices: "Crop Prices",
+                weather: "Weather",
+                rotation: "Crop Rotation",
+                fertilizers: "Fertilizers",
+                community: "Community",
+                bot: "Bot",
+                account: "Account",
+                about: "About",
+                team: "CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions."
+            },
+            te: {
+                header: "క్రాప్‌కనెక్ట్‌ఏఐ",
+                prices: "పంట ధరలు",
+                weather: "వాతావరణం",
+                rotation: "పంట భ్రమణం",
+                fertilizers: "ఎరువులు",
+                community: "సమాజం",
+                bot: "బాట్",
+                account: "ఖాతా",
+                about: "గురించి",
+                team: "క్రాప్‌కనెక్ట్‌ఏఐ హైదరాబాద్, తెలంగాణ నుండి ఒక ఉత్సాహవంతమైన బృందం చేత నిర్మించబడింది, ఇది రైతులకు ఏఐ-ఆధారిత పరిష్కారాలతో సాధికారత కల్పించడానికి అంకితం చేయబడింది."
+            }
+        };
+
+        function setLanguage(lang) {
+            document.getElementById("header-title").textContent = translations[lang].header;
+            document.getElementById("prices-btn").textContent = translations[lang].prices;
+            document.getElementById("weather-btn").textContent = translations[lang].weather;
+            document.getElementById("rotation-btn").textContent = translations[lang].rotation;
+            document.getElementById("fertilizers-btn").textContent = translations[lang].fertilizers;
+            document.getElementById("community-btn").textContent = translations[lang].community;
+            document.getElementById("bot-btn").textContent = translations[lang].bot;
+            document.getElementById("account-btn").textContent = translations[lang].account;
+            document.getElementById("about-btn").textContent = translations[lang].about;
+            document.getElementById("team-desc").textContent = translations[lang].team;
+            document.getElementById("nav-grid").style.display = "grid";
+            document.getElementById("footer").style.display = "block";
+        }
+    </script>
+</body>
+</html>

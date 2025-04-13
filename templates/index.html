@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CropConnectAI - Register/Login Page">
+    <meta name="keywords" content="CropConnectAI, Registration, Login, OTP Verification">
+    <meta name="author" content="CropConnectAI Team">
+    <link rel="icon" type="image/png" href="/static/images/Croplogo.png">    
+    <title>CropConnectAI - Register/Login</title>
+    <style>
+        html, body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin-top: 100px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            width: 350px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            display: inline-block;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .popup-content {
+            width: 100%;
+        }
+        .close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        input {
+            width: 90%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            width: 300px;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .otp-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        .login-btn {
+            background-color: #388e3c;
+            color: white;
+            width: 300px;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        img {
+            margin-top: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 300px;
+            height: 200px;
+        }
+        .message {
+            display: none;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            font-size: 18px; /* Larger font for readability */
+            font-weight: bold;
+        }
+        .success {
+            background-color: #4caf50;
+            color: white;
+        }
+        .error {
+            background-color: #f44336;
+            color: white;
+        }
+        .message.fade {
+            animation: fadeOut 10s forwards; /* Slower fade-out: 10 seconds */
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <h1>CropConnectAI - Register/Login</h1>
+    <img src="static/images/Croplogo.png" alt="CropConnectAI" width="300px" height="200px">
+    <button onclick="openPopup('registerPopup')" style="background-color: green; color: white;">Register</button>
+    <button onclick="openPopup('loginPopup')" style="background-color: blue; color: white;">Login</button>
+
+    <!-- Registration Popup -->
+    <div id="registerPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup('registerPopup')">×</span>
+            <h2>🌾 New Farmer Registration 🌾</h2>
+            <input type="tel" id="regMobile" placeholder="Enter Phone Number (10 digits)📞" required>
+            <button onclick="sendOTP('register')" class="otp-btn">Send OTP</button>
+            <input type="text" id="regOTP" placeholder="Enter OTP" disabled>
+            <button onclick="verifyOTP('register')" class="login-btn">Register</button>
+            <div id="regMessage" class="message"></div>
+        </div>
+    </div>
+
+    <!-- Login Popup -->
+    <div id="loginPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup('loginPopup')">×</span>
+            <h2>Login</h2>
+            <input type="tel" id="loginMobile" placeholder="Enter Phone Number (10 digits) 📞" required>
+            <button onclick="sendOTP('login')" class="otp-btn">Send OTP</button>
+            <input type="text" id="loginOTP" placeholder="Enter OTP" disabled>
+            <button onclick="verifyOTP('login')" class="login-btn">Login</button>
+            <div id="loginMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        function openPopup(id) {
+            console.log(`Opening popup: ${id}`);
+            document.getElementById('registerPopup').style.display = 'none';
+            document.getElementById('loginPopup').style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function closePopup(id) {
+            console.log(`Closing popup: ${id}`);
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function sendOTP(type) {
+            const mobileInput = document.getElementById(type === 'register' ? 'regMobile' : 'loginMobile');
+            const mobile = mobileInput.value;
+            console.log(`Sending OTP for ${type}, mobile: ${mobile}`);
+
+            if (mobile.length !== 10 || !/^\d+$/.test(mobile)) {
+                showMessage(type, 'Please enter a valid 10-digit mobile number.', 'error');
+                return;
+            }
+
+            fetch(`/send_otp_${type}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobile })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(`Send OTP response for ${type}:`, data);
+                if (data.success) {
+                    const otpInput = document.getElementById(type === 'register' ? 'regOTP' : 'loginOTP');
+                    otpInput.disabled = false;
+                    otpInput.focus();
+                    showMessage(type, `OTP sent: ${data.otp} (simulated)`, 'success');
+                } else {
+                    showMessage(type, data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error sending OTP:', error);
+                showMessage(type, 'Error sending OTP.', 'error');
+            });
+        }
+
+        function verifyOTP(type) {
+            const mobileInput = document.getElementById(type === 'register' ? 'regMobile' : 'loginMobile');
+            const otpInput = document.getElementById(type === 'register' ? 'regOTP' : 'loginOTP');
+            const mobile = mobileInput.value;
+            const enteredOTP = otpInput.value;
+            console.log(`Verifying OTP for ${type}: ${enteredOTP}`);
+
+            if (!enteredOTP) {
+                showMessage(type, 'Please enter the OTP.', 'error');
+                return;
+            }
+
+            fetch(`/verify_otp_${type}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mobile, otp: enteredOTP })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(`Verify OTP response for ${type}:`, data);
+                if (data.success) {
+                    if (type === 'register') {
+                        showMessage(type, 'Registration completed, You can login now.', 'success');
+                        setTimeout(() => closePopup('registerPopup'), 3000);
+                    } else {
+                        showMessage(type, 'Login successful.', 'success');
+                        setTimeout(() => window.location.href = '/home', 3000); // Redirect to /home
+                    }
+                } else {
+                    showMessage(type, data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error verifying OTP:', error);
+                showMessage(type, 'Error verifying OTP.', 'error');
+            });
+        }
+
+        function showMessage(type, message, typeClass) {
+            const messageDiv = document.getElementById(type === 'register' ? 'regMessage' : 'loginMessage');
+            console.log(`Showing message for ${type}: ${message}`);
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${typeClass}`;
+            messageDiv.style.display = 'block';
+            messageDiv.classList.add('fade');
+            setTimeout(() => messageDiv.style.display = 'none', 10000); // 10 seconds visibility
+        }
+    </script>
+</body>
+</html>

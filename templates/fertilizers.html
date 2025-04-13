@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Crop Fertilizer and Pest Information">
+    <meta name="keywords" content="Crop, Fertilizer, Pest, Information, Agriculture">
+    <meta name="author" content="CropConnectAI Team">
+    <link rel="icon" type="image/png" href="/static/images/Croplogo.png">
+    <title id="pageTitle">Crop Fertilizer & Pest Info | CropConnectAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            color: #333;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/images/farming.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) opacity(0.8);
+            z-index: -1;
+        }
+
+        .navbar {
+            background-color: #388e3c;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .navbar-title {
+            margin: 0;
+            font-size: 28px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #ffeb3b;
+        }
+
+        .language-selection {
+            text-align: center;
+            margin: 20vh auto;
+            width: fit-content;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease;
+        }
+
+        .language-selection button {
+            background-color: #388e3c;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .language-selection button:hover {
+            background-color: #2e7d32;
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2e7d32;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #388e3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+            position: relative;
+        }
+
+        button:hover {
+            background: #2e7d32;
+            transform: scale(1.05);
+        }
+
+        button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #suggestions {
+            text-align: left;
+            max-height: 100px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .suggestion-item {
+            padding: 5px;
+            cursor: pointer;
+            background: #eee;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .suggestion-item:hover {
+            background: #ddd;
+        }
+
+        .output-section {
+            padding: 10px;
+            border-top: 2px solid #2e7d32;
+            text-align: left;
+        }
+
+        .output-section h2 {
+            color: #2e7d32;
+            font-size: 1.5rem;
+        }
+
+        .output-section p {
+            margin: 5px 0;
+        }
+
+        footer {
+            background-color: #2e7d32;
+            color: #f5f5f5;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+            width: 100%;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .contact-links a {
+            color: #b2fab4;
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            transition: color 0.3s ease;
+        }
+
+        .contact-links a:hover {
+            color: #ffffff;
+        }
+
+        .contact-links i {
+            margin-right: 0.3rem;
+        }
+
+        .move-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #388e3c;
+            color: #ffffff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: none;
+            z-index: 1001;
+            transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .move-to-top:hover {
+            background-color: #2e7d32;
+            transform: scale(1.1);
+        }
+
+        .move-to-top.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .navbar-title {
+                font-size: 22px;
+            }
+
+            .navbar a {
+                font-size: 14px;
+            }
+
+            .language-selection {
+                margin: 15vh auto;
+                padding: 15px;
+            }
+
+            .language-selection button {
+                padding: 8px 15px;
+                margin: 5px;
+                font-size: 14px;
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .output-section h2 {
+                font-size: 1.2rem;
+            }
+
+            input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            button {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            footer {
+                padding: 1rem;
+            }
+
+            .move-to-top {
+                bottom: 15px;
+                right: 15px;
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .tooltip {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Selection -->
+    <div class="language-selection" id="languageSelection">
+        <div class="language-buttons">
+            <button onclick="selectLanguage('en')">English</button>
+            <button onclick="selectLanguage('te')">తెలుగు</button>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-title" id="navbarTitle">CropConnectAI - Fertilizers</div>
+        <a href="{{ url_for('home') }}"><i class="fas fa-home"></i></a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <h1 id="containerTitle">Crop Fertilizer & Pest Info</h1>
+            <div class="input-section">
+                <input type="text" id="cropInput" placeholder="Enter or Speak Crop Name..." onkeyup="suggestCrops()">
+                <button onclick="startSpeechRecognition()"><i class="fas fa-microphone"></i></button>
+                <div id="suggestions"></div>
+            </div>
+            <div class="output-section" id="output">
+                <!-- Output will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Move to Top Button -->
+    <button class="move-to-top" id="moveToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i> <span id="moveToTopText"></span>
+    </button>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <p id="teamDesc"></p>
+        <div class="contact-links">
+            <a href="mailto:shivakumar.working@gmail.com"><i class="fas fa-envelope"></i><span id="footerEmail"></span></a>
+            <a href="https://github.com/shivkumars005" target="_blank"><i class="fab fa-github"></i><span id="footerGithub"></span></a>
+            <a href="https://linkedin.com/in/shivakumarsouta" target="_blank"><i class="fab fa-linkedin"></i><span id="footerLinkedin"></span></a>
+            <a href="#"><i class="fas fa-map-marker-alt"></i><span id="footerLocation"></span></a>
+        </div>
+    </footer>
+
+    <script>
+        const cropData = {
+            "Wheat": {
+                fertilizers: "Urea, DAP, Potash",
+                time: "Apply Urea during early growth, DAP before sowing.",
+                pests: "Aphids, Armyworms",
+                prevention: "Use neem oil spray, monitor fields regularly."
+            },
+            "Paddy": {
+                fertilizers: "Urea, Potash, Super Phosphate",
+                time: "Apply Urea in 3 splits: early, mid, and late stage.",
+                pests: "Brown Planthopper, Stem Borer",
+                prevention: "Avoid over-irrigation, use light traps."
+            },
+            "Tomato": {
+                fertilizers: "NPK (Nitrogen, Phosphorus, Potassium), Calcium Nitrate",
+                time: "Apply NPK during planting, Calcium Nitrate during flowering.",
+                pests: "Tomato Hornworm, Aphids",
+                prevention: "Use neem oil spray, introduce ladybugs for natural control."
+            },
+            "Sunflower": {
+                fertilizers: "Nitrogen, Phosphorus, Potassium",
+                time: "Apply Nitrogen at early growth, Phosphorus before flowering.",
+                pests: "Sunflower Moth, Cutworms",
+                prevention: "Use pheromone traps, maintain clean fields."
+            },
+            "Cotton": {
+                fertilizers: "Nitrogen, Phosphorus, Potassium, Zinc",
+                time: "Apply Nitrogen in split doses, Phosphorus at early growth.",
+                pests: "Bollworm, Whiteflies",
+                prevention: "Use resistant varieties, apply bio-pesticides."
+            },
+            "Corn": {
+                fertilizers: "Urea, DAP, Potash",
+                time: "Apply Urea at vegetative stage, DAP before sowing.",
+                pests: "Corn Earworm, Fall Armyworm",
+                prevention: "Use crop rotation, apply biological pesticides."
+            },
+            "Mustard": {
+                fertilizers: "Nitrogen, Phosphorus, Sulphur",
+                time: "Apply Sulphur at flowering, Phosphorus at root development.",
+                pests: "Aphids, Mustard Sawfly",
+                prevention: "Use neem oil, avoid excess nitrogen."
+            },
+            "Barley": {
+                fertilizers: "Urea, DAP, Potash",
+                time: "Apply Urea during early vegetative growth.",
+                pests: "Hessian Fly, Aphids",
+                prevention: "Use resistant varieties, avoid waterlogging."
+            },
+            "Millets": {
+                fertilizers: "Urea, DAP, Zinc",
+                time: "Apply Urea in split doses, Zinc before sowing.",
+                pests: "Shoot Fly, Stemborer",
+                prevention: "Use organic pesticides, maintain field hygiene."
+            },
+            "Groundnut": {
+                fertilizers: "Gypsum, NPK",
+                time: "Apply Gypsum at flowering stage, NPK during early growth.",
+                pests: "Leaf Miner, Red Hairy Caterpillar",
+                prevention: "Use pheromone traps, avoid excess nitrogen."
+            },
+            "Soybean": {
+                fertilizers: "DAP, Potash, Phosphorus",
+                time: "Apply DAP before sowing, Potash at flowering.",
+                pests: "Aphids, Stem Fly",
+                prevention: "Use bio-pesticides, monitor fields regularly."
+            },
+            "Chili": {
+                fertilizers: "NPK, Micronutrients",
+                time: "Apply NPK before flowering, Micronutrients at fruiting stage.",
+                pests: "Thrips, Whiteflies",
+                prevention: "Use yellow sticky traps, neem oil spray."
+            },
+            "Potato": {
+                fertilizers: "Urea, DAP, Potash",
+                time: "Apply DAP before sowing, Urea at tuber formation stage.",
+                pests: "Potato Tuber Moth, Aphids",
+                prevention: "Use proper soil cover, biological control methods."
+            }
+        };
+
+        const crops = Object.keys(cropData);
+        let selectedLanguage = 'en';
+
+        const translations = {
+            en: {
+                pageTitle: "Crop Fertilizer & Pest Info | CropConnectAI",
+                navbarTitle: "CropConnectAI - Fertilizers",
+                containerTitle: "Crop Fertilizer & Pest Info",
+                placeholder: "Enter or Speak Crop Name...",
+                fertilizers: "Fertilizers",
+                applicationTime: "Application Time",
+                commonPests: "Common Pests",
+                prevention: "Prevention",
+                noData: "No data available for this crop.",
+                listenButton: "Listen",
+                moveToTop: "Back to Top",
+                teamDesc: "CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions.",
+                footerEmail: "Email",
+                footerGithub: "GitHub",
+                footerLinkedin: "LinkedIn",
+                footerLocation: "Hyderabad, Telangana"
+            },
+            te: {
+                pageTitle: "పంట ఎరువులు & కీటకాల సమాచారం | క్రాప్‌కనెక్ట్AI",
+                navbarTitle: "క్రాప్‌కనెక్ట్AI - ఎరువులు",
+                containerTitle: "పంట ఎరువులు & కీటకాల సమాచారం",
+                placeholder: "పంట పేరును నమోదు చేయండి లేదా మాట్లాడండి...",
+                fertilizers: "ఎరువులు",
+                applicationTime: "వర్తింపు సమయం",
+                commonPests: "సాధారణ కీటకాలు",
+                prevention: "నివారణ",
+                noData: "ఈ పంట కోసం డేటా అందుబాటులో లేదు.",
+                listenButton: "వినండి",
+                moveToTop: "పైకి వెళ్ళు",
+                teamDesc: "క్రాప్‌కనెక్ట్‌ఏఐ హైదరాబాద్, తెలంగాణ నుండి ఒక ఉత్సాహవంతమైన బృందం చేత నిర్మించబడింది, ఇది రైతులకు ఏఐ-ఆధారిత పరిష్కారాలతో సాధికారత కల్పించడానికి అంకితం చేయబడింది.",
+                footerEmail: "ఇమెయిల్",
+                footerGithub: "గిట్‌హబ్",
+                footerLinkedin: "లింక్డ్‌ఇన్",
+                footerLocation: "హైదరాబాద్, తెలంగాణ"
+            }
+        };
+
+        function selectLanguage(lang) {
+            selectedLanguage = lang;
+            const t = translations[lang];
+            // Update UI translations
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+            document.getElementById('navbarTitle').textContent = t.navbarTitle;
+            document.getElementById('containerTitle').textContent = t.containerTitle;
+            document.getElementById('cropInput').placeholder = t.placeholder;
+            document.getElementById('moveToTopText').textContent = t.moveToTop;
+            document.getElementById('teamDesc').textContent = t.teamDesc;
+            document.getElementById('footerEmail').textContent = t.footerEmail;
+            document.getElementById('footerGithub').textContent = t.footerGithub;
+            document.getElementById('footerLinkedin').textContent = t.footerLinkedin;
+            document.getElementById('footerLocation').textContent = t.footerLocation;
+
+            // Show content
+            document.getElementById('languageSelection').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('languageSelection').style.display = 'none';
+                document.getElementById('navbar').style.display = 'flex';
+                document.getElementById('mainContent').classList.add('active');
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('navbar').style.opacity = '1';
+                document.getElementById('mainContent').style.opacity = '1';
+                document.getElementById('footer').style.opacity = '1';
+            }, 300);
+
+            // Update current output if any
+            const currentCrop = document.getElementById('cropInput').value;
+            if (currentCrop) {
+                getCropDetails(currentCrop);
+            }
+        }
+
+        function updateLanguage() {
+            const t = translations[selectedLanguage];
+            document.getElementById('navbarTitle').textContent = t.navbarTitle;
+            document.getElementById('cropInput').placeholder = t.placeholder;
+
+            const currentCrop = document.getElementById('cropInput').value;
+            if (currentCrop) {
+                getCropDetails(currentCrop);
+            }
+        }
+
+        function suggestCrops() {
+            let input = document.getElementById("cropInput").value.toLowerCase();
+            let suggestions = document.getElementById("suggestions");
+            suggestions.innerHTML = "";
+
+            if (input) {
+                let filteredCrops = crops.filter(crop => crop.toLowerCase().startsWith(input));
+                filteredCrops.forEach(crop => {
+                    let div = document.createElement("div");
+                    div.classList.add("suggestion-item");
+                    div.innerText = crop;
+                    div.onclick = () => {
+                        document.getElementById("cropInput").value = crop;
+                        getCropDetails(crop);
+                        suggestions.innerHTML = "";
+                    };
+                    suggestions.appendChild(div);
+                });
+            }
+        }
+
+        function getCropDetails(input) {
+            let output = document.getElementById("output");
+            let normalizedInput = input.trim().toLowerCase();
+            let matchedCrop = crops.find(crop => normalizedInput.includes(crop.toLowerCase()));
+
+            let normalizedCrop = matchedCrop
+                ? matchedCrop.charAt(0).toUpperCase() + matchedCrop.slice(1).toLowerCase()
+                : null;
+
+            if (normalizedCrop && cropData[normalizedCrop]) {
+                let data = cropData[normalizedCrop];
+                const t = translations[selectedLanguage];
+                let details = `
+                    <h2>${normalizedCrop}</h2>
+                    <p><strong>${t.fertilizers}:</strong> ${data.fertilizers}</p>
+                    <p><strong>${t.applicationTime}:</strong> ${data.time}</p>
+                    <p><strong>${t.commonPests}:</strong> ${data.pests}</p>
+                    <p><strong>${t.prevention}:</strong> ${data.prevention}</p>
+                    <button onclick="speakText()">
+                        <i class="fas fa-volume-up"></i>
+                        <span class="tooltip">${t.listenButton}</span>
+                    </button>
+                `;
+                output.innerHTML = details;
+            } else {
+                output.innerHTML = `<p>${translations[selectedLanguage].noData}</p>`;
+            }
+        }
+
+        function startSpeechRecognition() {
+            let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = selectedLanguage === 'en' ? "en-IN" : "te-IN";
+            recognition.start();
+
+            recognition.onresult = function (event) {
+                let transcript = event.results[0][0].transcript;
+                document.getElementById("cropInput").value = transcript;
+                getCropDetails(transcript);
+            };
+
+            recognition.onerror = function () {
+                alert("Speech recognition error. Please try again.");
+            };
+        }
+
+        function speakText() {
+            let text = document.getElementById('output').innerText;
+            if (!text.trim()) {
+                alert("No text available for speech.");
+                return;
+            }
+            let speech = new SpeechSynthesisUtterance();
+            speech.lang = selectedLanguage === 'en' ? 'en-IN' : 'te-IN';
+            speech.text = text;
+            window.speechSynthesis.cancel();
+            setTimeout(() => window.speechSynthesis.speak(speech), 100);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onscroll = function() {
+            const moveToTopBtn = document.getElementById('moveToTop');
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                moveToTopBtn.classList.add('visible');
+            } else {
+                moveToTopBtn.classList.remove('visible');
+            }
+        };
+
+        window.onload = function() {
+            document.getElementById('languageSelection').style.display = 'block';
+            document.getElementById('navbar').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('active');
+            document.getElementById('footer').style.display = 'none';
+            document.getElementById('moveToTop').style.display = 'none';
+            document.getElementById('languageSelection').style.opacity = '1';
+            document.getElementById('navbar').style.opacity = '0';
+            document.getElementById('mainContent').style.opacity = '0';
+            document.getElementById('footer').style.opacity = '0';
+        };
+    </script>
+</body>
+</html>

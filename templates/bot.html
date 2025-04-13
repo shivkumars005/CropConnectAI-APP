@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CropConnectAI - Crop Q&A Bot">
+    <meta name="keywords" content="CropConnectAI, Agriculture, Crop Q&A, India">
+    <meta name="author" content="CropConnectAI Team">
+    <link rel="icon" type="image/png" href="/static/images/Croplogo.png">
+    <title id="pageTitle">Crop Q&A Bot | CropConnectAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            color: #2e7d32;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/images/farming.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) opacity(0.8);
+            z-index: -1;
+        }
+
+        .navbar {
+            background-color: #388e3c;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .navbar-title {
+            margin: 0;
+            font-size: 28px;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #ffeb3b;
+        }
+
+        .language-toggle {
+            text-align: center;
+            margin: 20vh auto;
+            width: fit-content;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.3s ease;
+        }
+
+        .language-toggle button {
+            background-color: #388e3c;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .language-toggle button:hover {
+            background-color: #2e7d32;
+            transform: scale(1.05);
+        }
+
+        .main-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group input[type="text"] {
+            height: 3.5rem;
+            width: 22rem;
+            background: #f1f8e9;
+            font-size: 1.1rem;
+            padding: 10px 15px;
+            border: 2px solid #66bb6a;
+            border-radius: 25px;
+            outline: none;
+            color: #2e7d32;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-group input[type="text"]:focus {
+            border-color: #388e3c;
+            box-shadow: 0 0 10px rgba(56, 142, 60, 0.5);
+        }
+
+        .input-group button {
+            height: 3.5rem;
+            width: 3.5rem;
+            font-weight: bold;
+            color: #ffffff;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            background-color: #66bb6a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .input-group button:hover {
+            background-color: #4caf50;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .submit-button {
+            width: 10rem;
+            height: 3.5rem;
+            font-size: 1.1rem;
+        }
+
+        #outputArea {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            text-align: left;
+            min-height: 100px;
+        }
+
+        #errorMessage {
+            color: #d32f2f;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            z-index: 2000;
+            opacity: 0;
+            animation: fadeInOut 3s forwards;
+        }
+
+        .success {
+            background-color: #4caf50;
+        }
+
+        .error {
+            background-color: #d32f2f;
+        }
+
+        .info {
+            background-color: #0288d1;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translateX(-50%); }
+            90% { opacity: 1; transform: translateX(-50%); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+
+        footer {
+            background-color: #2e7d32;
+            color: #f5f5f5;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+            width: 100%;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        footer p {
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+
+        .contact-links a {
+            color: #b2fab4;
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            transition: color 0.3s ease;
+        }
+
+        .contact-links a:hover {
+            color: #ffffff;
+        }
+
+        .contact-links i {
+            margin-right: 0.3rem;
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 10px 15px;
+            }
+
+            .navbar-title {
+                font-size: 22px;
+            }
+
+            .navbar a {
+                font-size: 14px;
+            }
+
+            .language-toggle {
+                margin: 15vh auto;
+                padding: 15px;
+            }
+
+            .language-toggle button {
+                padding: 8px 15px;
+                margin: 5px;
+                font-size: 14px;
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .input-group input[type="text"] {
+                width: 100%;
+                height: 3rem;
+                font-size: 1rem;
+            }
+
+            .input-group button {
+                width: 100%;
+                height: 3rem;
+                font-size: 1rem;
+            }
+
+            .submit-button {
+                width: 100%;
+            }
+
+            #outputArea {
+                min-height: 80px;
+                padding: 10px;
+            }
+
+            footer {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Selection -->
+    <div class="language-toggle" id="languageToggle">
+        <button onclick="showLanguage('en-US')">English</button>
+        <button onclick="showLanguage('te-IN')">తెలుగు</button>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-title" id="navbarTitle">CropConnectAI - Crop Q&A</div>
+        <a href="{{ url_for('home') }}"><i class="fas fa-home"></i></a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="container">
+            <h1 id="containerTitle">Crop Q&A Bot</h1>
+            <div class="input-group">
+                <input type="text" id="questionInput" placeholder="">
+                <button id="voiceQuestionButton"><img src="https://img.icons8.com/ios-filled/30/ffffff/microphone.png" class="icon" alt="Mic"></button>
+                <button class="submit-button" onclick="askQuestion()">Ask</button>
+            </div>
+            <div id="outputArea"></div>
+            <div id="errorMessage"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <p id="teamDesc"></p>
+        <div class="contact-links">
+            <a href="mailto:shivakumar.working@gmail.com"><i class="fas fa-envelope"></i><span id="footerEmail"></span></a>
+            <a href="https://github.com/shivkumars005" target="_blank"><i class="fab fa-github"></i><span id="footerGithub"></span></a>
+            <a href="https://linkedin.com/in/shivakumarsouta" target="_blank"><i class="fab fa-linkedin"></i><span id="footerLinkedin"></span></a>
+            <a href="#"><i class="fas fa-map-marker-alt"></i><span id="footerLocation"></span></a>
+        </div>
+    </footer>
+
+    <script>
+        let currentLanguage = null;
+
+        // Mock data for crop-related questions
+        const mockData = {
+            'en-US': [
+                {
+                    question: 'what is crop rotation',
+                    answer: 'Crop rotation is the practice of growing different crops in succession on the same land to improve soil health, reduce pests, and increase yields. For example, in India, rotating rice with pulses like lentils or chickpeas is common.'
+                },
+                {
+                    question: 'best crops for monsoon',
+                    answer: 'During the monsoon season in India, suitable crops include rice, maize, millets, and pulses like moong dal. These crops thrive in wet conditions and are widely grown in regions like Punjab and Maharashtra.'
+                },
+                {
+                    question: 'how to improve soil fertility',
+                    answer: 'To improve soil fertility, use organic manure, compost, or green manure crops like dhaincha. Crop rotation with legumes and reduced chemical fertilizers also helps. Vermicomposting is popular in India.'
+                },
+                {
+                    question: 'pests affecting rice',
+                    answer: 'Common pests affecting rice in India include stem borers, leaf folders, and brown plant hoppers. Integrated pest management, like using neem-based pesticides and resistant varieties, can control them.'
+                }
+            ],
+            'te-IN': [
+                {
+                    question: 'పంటల మార్పిడి అంటే ఏమిటి',
+                    answer: 'పంటల మార్పిడి అనేది నేల ఆరోగ్యాన్ని మెరుగుపరచడానికి, తెగుళ్లను తగ్గించడానికి మరియు దిగుబడిని పెంచడానికి ఒకే భూమిలో వివిధ పంటలను వరుసగా పండించే పద్ధతి. ఉదాహరణకు, భారతదేశంలో వరి తర్వాత కందిపప్పు లేదా శనగలు పండించడం సాధారణం.'
+                },
+                {
+                    question: 'వర్షాకాలంలో ఉత్తమ పంటలు',
+                    answer: 'భారతదేశంలో వర్షాకాలంలో వరి, మొక్కజొన్న, చిరుధాన్యాలు మరియు ముంగ్ దాల్ వంటి కాయధాన్యాలు అనుకూలమైన పంటలు. ఈ పంటలు తడి పరిస్థితుల్లో బాగా పెరుగుతాయి మరియు పంజాబ్, మహారాష్ట్రలలో విస్తృతంగా పండిస్తారు.'
+                },
+                {
+                    question: 'నేల సారవంతతను ఎలా మెరుగుపరచాలి',
+                    answer: 'నేల సారవంతతను మెరుగుపరచడానికి సేంద్రియ ఎరువు, కంపోస్ట్ లేదా ధైంచా వంటి ఆకుపచ్చ ఎరువు పంటలను ఉపయోగించండి. కాయధాన్యాలతో పంటల మార్పిడి మరియు రసాయన ఎరువులను తగ్గించడం కూడా సహాయపడుతుంది. భారతదేశంలో వర్మీకంపోస్టింగ్ ప్రసిద్ధం.'
+                },
+                {
+                    question: 'వరిని ప్రభావితం చేసే తెగుళ్లు',
+                    answer: 'భారతదేశంలో వరిని ప్రభావితం చేసే సాధారణ తెగుళ్లలో కాండం తొలిచే పురుగులు, ఆకు మడత పురుగులు మరియు గోధుమ రంగు మొక్కల గొల్లభామలు ఉన్నాయి. వేప ఆధారిత పురుగుమందులు మరియు నిరోధక రకాలను ఉపయోగించి సమగ్ర తెగులు నిర్వహణ ద్వారా వాటిని నియంత్రించవచ్చు.'
+                }
+            ]
+        };
+
+        const uiTranslations = {
+            'en-US': {
+                pageTitle: 'Crop Q&A Bot | CropConnectAI',
+                navbarTitle: 'CropConnectAI - Crop Q&A',
+                containerTitle: 'Crop Q&A Bot',
+                questionPlaceholder: 'Ask about crops grown in India...',
+                voiceError: 'Voice input failed. Please try again.',
+                noQuestion: 'Please enter a question.',
+                fetchingAnswer: 'Fetching answer...',
+                noAnswer: 'No answer available. Try another question.',
+                selectLanguage: 'Please select a language to continue.',
+                teamDesc: 'CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions.',
+                footerEmail: 'Email',
+                footerGithub: 'GitHub',
+                footerLinkedin: 'LinkedIn',
+                footerLocation: 'Hyderabad, Telangana'
+            },
+            'te-IN': {
+                pageTitle: 'పంటల Q&A బాట్ | క్రాప్‌కనెక్ట్AI',
+                navbarTitle: 'క్రాప్‌కనెక్ట్AI - పంటల Q&A',
+                containerTitle: 'పంటల Q&A బాట్',
+                questionPlaceholder: 'భారతదేశంలో పండే పంటల గురించి అడగండి...',
+                voiceError: 'వాయిస్ ఇన్‌పుట్ విఫలమైంది. మళ్లీ ప్రయత్నించండి.',
+                noQuestion: 'దయచేసి ఒక ప్రశ్నను నమోదు చేయండి.',
+                fetchingAnswer: 'సమాధానం సేకరిస్తోంది...',
+                noAnswer: 'సమాధానం అందుబాటులో లేదు. మరొక ప్రశ్నను ప్రయత్నించండి.',
+                selectLanguage: 'దయచేసి భాషను ఎంచుకోండి.',
+                teamDesc: 'క్రాప్‌కనెక్ట్‌ఏఐ హైదరాబాద్, తెలంగాణ నుండి ఒక ఉత్సాహవంతమైన బృందం చేత నిర్మించబడింది, ఇది రైతులకు ఏఐ-ఆధారిత పరిష్కారాలతో సాధికారత కల్పించడానికి అంకితం చేయబడింది.',
+                footerEmail: 'ఇమెయిల్',
+                footerGithub: 'గిట్‌హబ్',
+                footerLinkedin: 'లింక్డ్‌ఇన్',
+                footerLocation: 'హైదరాబాద్, తెలంగాణ'
+            }
+        };
+
+        function showMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            msg.textContent = text;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+
+        function showLanguage(lang) {
+            currentLanguage = lang;
+            const t = uiTranslations[lang];
+
+            // Update page title
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+
+            // Update navbar
+            document.getElementById('navbarTitle').textContent = t.navbarTitle;
+
+            // Update main content
+            document.getElementById('containerTitle').textContent = t.containerTitle;
+            document.getElementById('questionInput').placeholder = t.questionPlaceholder;
+
+            // Update footer
+            document.getElementById('teamDesc').textContent = t.teamDesc;
+            document.getElementById('footerEmail').textContent = t.footerEmail;
+            document.getElementById('footerGithub').textContent = t.footerGithub;
+            document.getElementById('footerLinkedin').textContent = t.footerLinkedin;
+            document.getElementById('footerLocation').textContent = t.footerLocation;
+
+            // Show content
+            document.getElementById('languageToggle').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('languageToggle').style.display = 'none';
+                document.getElementById('navbar').style.display = 'flex';
+                document.getElementById('mainContent').classList.add('active');
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('navbar').style.opacity = '1';
+                document.getElementById('mainContent').style.opacity = '1';
+                document.getElementById('footer').style.opacity = '1';
+            }, 300);
+        }
+
+        function startSpeechRecognition() {
+            if (!currentLanguage) {
+                showMessage(uiTranslations['en-US'].selectLanguage, 'error');
+                return;
+            }
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = currentLanguage;
+            recognition.start();
+            recognition.onresult = function(event) {
+                const spokenText = event.results[0][0].transcript.trim();
+                document.getElementById('questionInput').value = spokenText;
+            };
+            recognition.onerror = function(event) {
+                const t = uiTranslations[currentLanguage] || uiTranslations['en-US'];
+                showMessage(`${t.voiceError}: ${event.error}`, 'error');
+            };
+        }
+
+        async function askQuestion() {
+            if (!currentLanguage) {
+                showMessage(uiTranslations['en-US'].selectLanguage, 'error');
+                return;
+            }
+            const question = document.getElementById('questionInput').value.trim();
+            const outputArea = document.getElementById('outputArea');
+            const errorMessage = document.getElementById('errorMessage');
+            const t = uiTranslations[currentLanguage];
+
+            outputArea.innerHTML = '';
+            errorMessage.innerText = '';
+
+            if (!question) {
+                showMessage(t.noQuestion, 'error');
+                return;
+            }
+
+            showMessage(t.fetchingAnswer, 'info');
+
+            try {
+                // Simulate async behavior for consistency
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Find answer in mock data (case-insensitive, partial match)
+                const questions = mockData[currentLanguage];
+                const normalizedQuestion = question.toLowerCase();
+                const match = questions.find(item => 
+                    item.question.toLowerCase().includes(normalizedQuestion) ||
+                    normalizedQuestion.includes(item.question.toLowerCase())
+                );
+
+                const answer = match ? match.answer : t.noAnswer;
+
+                outputArea.innerHTML = `<p>${answer}</p>`;
+                showMessage('Answer fetched successfully', 'success');
+            } catch (error) {
+                console.error('Error processing question:', error);
+                showMessage(t.noAnswer, 'error');
+                outputArea.innerHTML = `<p>${t.noAnswer}</p>`;
+            }
+        }
+
+        window.onload = function() {
+            showMessage(uiTranslations['en-US'].selectLanguage, 'info');
+            document.getElementById('languageToggle').style.display = 'block';
+            document.getElementById('navbar').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('active');
+            document.getElementById('footer').style.display = 'none';
+            document.getElementById('languageToggle').style.opacity = '1';
+            document.getElementById('navbar').style.opacity = '0';
+            document.getElementById('mainContent').style.opacity = '0';
+            document.getElementById('footer').style.opacity = '0';
+        };
+
+        document.getElementById('voiceQuestionButton').addEventListener('click', startSpeechRecognition);
+    </script>
+</body>
+</html>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Farming AI Chatbot - Ask about major crops.">
+    <meta name="keywords" content="Farming, AI, Chatbot, Agriculture, Crop Information">
+    <meta name="author" content="CropConnectAI Team">
+    <link rel="icon" type="image/png" href="/static/images/Croplogo.png">
+    <title id="pageTitle">Farming AI Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: linear-gradient(to bottom, #e8f5e9, #ffffff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/static/images/farming.jpg');
+            background-size: cover;
+            background-position: center;
+            filter: blur(1px) opacity(0.8);
+            z-index: -1;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #388e3c;
+            color: #ffffff;
+            padding: 15px 20px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .navbar-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .navbar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: #ffeb3b;
+        }
+        .language-selection {
+            text-align: center;
+            margin: 20vh auto;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+        .language-selection button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 20px;
+            background-color: #66bb6a;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .language-selection button:hover {
+            background-color: #4caf50;
+            transform: scale(1.05);
+        }
+        .chat-container {
+            width: 450px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 30px auto;
+            animation: fadeIn 1s ease-in-out;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .chat-box p {
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .user-message {
+            background: #e6e6e6;
+            text-align: right;
+        }
+        .bot-message {
+            background: #e3fcef;
+            text-align: left;
+        }
+        .input-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 8px 12px;
+            border: none;
+            background: #28a745;
+            color: #ffffff;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            z-index: 2000;
+            opacity: 0;
+            animation: fadeInOut 3s forwards;
+        }
+        .success {
+            background-color: #4caf50;
+        }
+        .error {
+            background-color: #d32f2f;
+        }
+        .info {
+            background-color: #0288d1;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -20px); }
+            10% { opacity: 1; transform: translateX(-50%); }
+            90% { opacity: 1; transform: translateX(-50%); }
+            100% { opacity: 0; transform: translate(-50%, -20px); }
+        }
+        footer {
+            background-color: #2e7d32;
+            color: #f5f5f5;
+            padding: 1.5rem;
+            text-align: center;
+            margin-top: auto;
+            width: 100%;
+            display: none;
+            transition: opacity 0.5s ease-in-out;
+        }
+        footer p {
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 3.5vw, 1rem);
+        }
+        .contact-links a {
+            color: #b2fab4;
+            margin: 0 0.5rem;
+            text-decoration: none;
+            font-size: clamp(0.85rem, 3.5vw, 0.95rem);
+            transition: color 0.3s ease;
+        }
+        .contact-links a:hover {
+            color: #ffffff;
+        }
+        .contact-links i {
+            margin-right: 0.3rem;
+        }
+        #backToTop {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #ff9800;
+            color: #ffffff;
+            padding: 10px 15px;
+            border-radius: 50%;
+            display: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        #backToTop:hover {
+            background-color: #f57c00;
+        }
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 10px;
+            }
+            .navbar-title {
+                font-size: 22px;
+            }
+            .navbar a {
+                font-size: 14px;
+            }
+            .chat-container {
+                width: 90%;
+                padding: 15px;
+                margin: 20px auto;
+            }
+            .chat-box {
+                height: 250px;
+            }
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            input, button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            button {
+                padding: 10px;
+            }
+            .language-selection {
+                margin: 10vh auto;
+                padding: 15px;
+            }
+            .language-selection button {
+                width: 100%;
+                margin: 10px 0;
+                padding: 12px;
+                font-size: 14px;
+            }
+            footer {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Selection -->
+    <div class="language-selection" id="languageSelection">
+        <button onclick="setLanguage('en')">English</button>
+        <button onclick="setLanguage('te')">తెలుగు</button>
+    </div>
+
+    <!-- Navbar -->
+    <header class="navbar" id="navbar">
+        <div class="navbar-title" id="navbarTitle">CropConnectAI</div>
+        <a href="{{ url_for('home') }}"><i class="fas fa-home"></i></a>
+    </header>
+
+    <!-- Chat Container -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-box" id="chatBox">
+            <p class="bot-message" id="welcomeMessage">👋 Welcome! Ask about any major crop.</p>
+        </div>
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="Type your question...">
+            <button onclick="sendMessage()" id="sendButton">Send</button>
+            <button onclick="startRecognition()" id="speakButton">🎤 Speak</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <p id="teamDesc"></p>
+        <div class="contact-links">
+            <a href="mailto:shivakumar.working@gmail.com"><i class="fas fa-envelope"></i>Email</a>
+            <a href="https://github.com/shivkumars005" target="_blank"><i class="fab fa-github"></i>GitHub</a>
+            <a href="https://linkedin.com/in/shivakumarsouta" target="_blank"><i class="fab fa-linkedin"></i>LinkedIn</a>
+            <a href="#"><i class="fas fa-map-marker-alt"></i>Hyderabad, Telangana</a>
+        </div>
+    </footer>
+
+    <!-- Back-to-Top Button -->
+    <button id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <script>
+        let currentLanguage = null;
+        let audioCache = {};
+
+        // Original cropData preserved
+        const cropData = {
+            "paddy": "Paddy is mainly grown in monsoon season and requires standing water.",
+            "wheat": "Wheat is a winter crop that thrives in well-drained loamy soil.",
+            "maize": "Maize grows best in warm climates with moderate rainfall.",
+            "cotton": "Cotton requires high temperatures and light, well-drained soil.",
+            "sugarcane": "Sugarcane grows best in tropical climates with abundant water.",
+        };
+
+        // Updated sendMessage with new logic
+        function sendMessage() {
+            const message = document.getElementById("userInput").value.trim().toLowerCase();
+            if (!message) return;
+
+            const chatBox = document.getElementById("chatBox");
+            const userMessage = document.createElement("p");
+            userMessage.className = "user-message";
+            userMessage.innerText = message;
+            chatBox.appendChild(userMessage);
+
+            // Check for exact crop name match
+            let response = cropData[message] || null;
+
+            // If no exact match, check for any crop name in the input
+            if (!response) {
+                for (const crop in cropData) {
+                    if (message.includes(crop)) {
+                        response = cropData[crop];
+                        break;
+                    }
+                }
+            }
+
+            // Default response if no crop found
+            response = response || "Sorry, I don't have information on that crop.";
+
+            const botMessage = document.createElement("p");
+            botMessage.className = "bot-message";
+            botMessage.innerText = response;
+            chatBox.appendChild(botMessage);
+
+            chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to bottom
+            speak(response, currentLanguage);
+        }
+
+        // UI translations
+        const translations = {
+            'en': {
+                pageTitle: 'Farming AI Chatbot - CropConnectAI',
+                navbarTitle: 'CropConnectAI',
+                welcomeMessage: '👋 Welcome! Ask about any major crop.',
+                inputPlaceholder: 'Type your question...',
+                sendButton: 'Send',
+                speakButton: '🎤 Speak',
+                teamDesc: 'CropConnectAI is built by a passionate team from Hyderabad, Telangana, dedicated to empowering farmers with AI-driven solutions.',
+                selectLanguage: 'Please select a language to continue.',
+                voicePrompt: 'Please say the name of a crop.',
+                voiceError: 'Voice input failed. Please try again.',
+                speakingResponse: 'Speaking response...',
+                ttsError: 'Error playing audio. Please try again.'
+            },
+            'te': {
+                pageTitle: 'వ్యవసాయ AI చాట్‌బాట్ - క్రాప్‌కనెక్ట్‌ఏఐ',
+                navbarTitle: 'క్రాప్‌కనెక్ట్‌ఏఐ',
+                welcomeMessage: '👋 స్వాగతం! ఏదైనా ప్రధాన పంట గురించి అడగండి.',
+                inputPlaceholder: 'మీ ప్రశ్నను టైప్ చేయండి...',
+                sendButton: 'పంపండి',
+                speakButton: '🎤 మాట్లాడండి',
+                teamDesc: 'క్రాప్‌కనెక్ట్‌ఏఐ హైదరాబాద్, తెలంగాణ నుండి ఒక ఉత్సాహవంతమైన బృందం చేత నిర్మించబడింది, ఇది రైతులకు ఏఐ-ఆధారిత పరిష్కారాలతో సాధికారత కల్పించడానికి అంకితం చేయబడింది.',
+                selectLanguage: 'దయచేసి భాషను ఎంచుకోండి.',
+                voicePrompt: 'దయచేసి ఒక పంట పేరు చెప్పండి.',
+                voiceError: 'వాయిస్ ఇన్‌పుట్ విఫలమైంది. మళ్లీ ప్రయత్నించండి.',
+                speakingResponse: 'స్పందన మాట్లాడుతోంది...',
+                ttsError: 'ఆడియో ప్లే చేయడంలో లోపం. మళ్లీ ప్రయత్నించండి.'
+            }
+        };
+
+        // Crop translations for voice input
+        const cropTranslations = {
+            'en': {
+                'paddy': 'paddy',
+                'wheat': 'wheat',
+                'maize': 'maize',
+                'cotton': 'cotton',
+                'sugarcane': 'sugarcane'
+            },
+            'te': {
+                'paddy': 'వరి',
+                'wheat': 'గోధుమ',
+                'maize': 'మొక్కజొన్న',
+                'cotton': 'పత్తి',
+                'sugarcane': 'చెరకు'
+            }
+        };
+
+        function showMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = `message ${type}`;
+            msg.textContent = text;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+
+        async function speak(text, lang) {
+            const t = translations[lang] || translations['en'];
+            showMessage(t.speakingResponse, 'info');
+            const cacheKey = `${text}_${lang}`;
+            if (audioCache[cacheKey]) {
+                try {
+                    const audio = new Audio(audioCache[cacheKey]);
+                    await audio.play();
+                    return new Promise(resolve => audio.onended = resolve);
+                } catch (err) {
+                    showMessage(t.ttsError, 'error');
+                }
+            }
+            try {
+                const response = await fetch('/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, lang: lang === 'te' ? 'te-IN' : 'en-US' })
+                });
+                if (!response.ok) throw new Error('TTS request failed');
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioCache[cacheKey] = audioUrl;
+                const audio = new Audio(audioUrl);
+                await audio.play();
+                return new Promise(resolve => audio.onended = resolve);
+            } catch (err) {
+                showMessage(t.ttsError, 'error');
+                return Promise.resolve();
+            }
+        }
+
+        async function translateToEnglish(text, sourceLang) {
+            if (sourceLang === 'en') return text;
+            try {
+                const response = await fetch(
+                    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=te&tl=en&dt=t&q=${encodeURIComponent(text)}`
+                );
+                const data = await response.json();
+                return data[0][0][0].toLowerCase();
+            } catch (err) {
+                showMessage(translations[currentLanguage || 'en'].voiceError, 'error');
+                return text;
+            }
+        }
+
+        function startRecognition() {
+            if (!currentLanguage) {
+                showMessage(translations['en'].selectLanguage, 'error');
+                speak(translations['en'].selectLanguage, 'en');
+                return;
+            }
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = currentLanguage === 'te' ? 'te-IN' : 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = async function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                if (transcript) {
+                    const userInput = document.getElementById('userInput');
+                    userInput.value = transcript;
+                    showMessage(`Recognized: ${transcript}`, 'success');
+                    await speak(`Recognized: ${transcript}`, currentLanguage);
+
+                    // Translate Telugu input to English for crop matching
+                    const message = currentLanguage === 'te' ? await translateToEnglish(transcript, 'te') : transcript.toLowerCase();
+
+                    const chatBox = document.getElementById("chatBox");
+                    const userMessage = document.createElement("p");
+                    userMessage.className = "user-message";
+                    userMessage.innerText = transcript; // Show original input
+                    chatBox.appendChild(userMessage);
+
+                    // Check for exact crop name match
+                    let response = cropData[message] || null;
+
+                    // Check for any crop name in the input
+                    if (!response) {
+                        for (const crop in cropData) {
+                            if (message.includes(crop)) {
+                                response = cropData[crop];
+                                break;
+                            }
+                        }
+                    }
+
+                    // Default response
+                    response = response || "Sorry, I don't have information on that crop.";
+
+                    const botMessage = document.createElement("p");
+                    botMessage.className = "bot-message";
+                    botMessage.innerText = response;
+                    chatBox.appendChild(botMessage);
+
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                    await speak(response, currentLanguage);
+                }
+                recognition.stop();
+            };
+
+            recognition.onerror = async function(event) {
+                const t = translations[currentLanguage || 'en'];
+                showMessage(t.voiceError, 'error');
+                await speak(t.voiceError, currentLanguage || 'en');
+                recognition.stop();
+            };
+
+            const t = translations[currentLanguage];
+            speak(t.voicePrompt, currentLanguage);
+            recognition.start();
+        }
+
+        async function setLanguage(lang) {
+            currentLanguage = lang;
+            const t = translations[lang];
+
+            // Update page title
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+
+            // Update navbar
+            document.getElementById('navbarTitle').textContent = t.navbarTitle;
+
+            // Update chat container
+            document.getElementById('welcomeMessage').textContent = t.welcomeMessage;
+            document.getElementById('userInput').placeholder = t.inputPlaceholder;
+            document.getElementById('sendButton').textContent = t.sendButton;
+            document.getElementById('speakButton').innerHTML = t.speakButton;
+
+            // Update footer
+            document.getElementById('teamDesc').textContent = t.teamDesc;
+
+            // Show content
+            document.getElementById('languageSelection').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('languageSelection').style.display = 'none';
+                document.getElementById('navbar').style.display = 'flex';
+                document.getElementById('chatContainer').style.display = 'block';
+                document.getElementById('footer').style.display = 'block';
+                document.getElementById('navbar').style.opacity = '1';
+                document.getElementById('chatContainer').style.opacity = '1';
+                document.getElementById('footer').style.opacity = '1';
+            }, 300);
+
+            // Welcome message TTS
+            await speak(t.welcomeMessage, lang);
+        }
+
+        window.onscroll = function() {
+            const backToTop = document.getElementById('backToTop');
+            if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = function() {
+            showMessage(translations['en'].selectLanguage, 'info');
+            document.getElementById('languageSelection').style.display = 'block';
+            document.getElementById('navbar').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'none';
+            document.getElementById('footer').style.display = 'none';
+            document.getElementById('languageSelection').style.opacity = '1';
+            document.getElementById('navbar').style.opacity = '0';
+            document.getElementById('chatContainer').style.opacity = '0';
+            document.getElementById('footer').style.opacity = '0';
+        };
+    </script>
+</body>
+</html>
